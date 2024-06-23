@@ -70,9 +70,9 @@ This file provides the details for the league. Other information, like whether t
 The following columns are required:
 
 - Name
-- Order (draft order)
+- Order `(draft order)`
 - Owner
-- Simulator (True/False or 1/0)
+- Simulator `(True/False or 1/0)`
 
 Technically, more than one team may be the simulator – or be owned by the user executing the program - allowing the user to test every pick of the draft.
 
