@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-PYDANTIC MODELS FOR FANTASY FOOTBALL TEAMS
+PYDANTIC MODELS FOR TEAMS
 """
 from annotated_types import Len
 from .config import DRAFT_YEAR, ROSTER_SIZE, ROUND_SIZE, SNAKE_DRAFT, STARTERS_SIZE
@@ -153,14 +153,14 @@ class Team(BaseModel):
     def projected_roster_points(self, year: int = DRAFT_YEAR) -> int:
         """
         Calculate the total projected points for the whole roster, not just the starters,
-        using the draft year as the default year.
+        using the draft year as the default year
         """
         return sum([player.points[year].projected_points for player in self.roster])
 
     def projected_starter_points(self, year: int = DRAFT_YEAR) -> int:
         """
         Calculate the total projected points for the starters only,
-        using the draft year as the default year.
+        using the draft year as the default year
         """
         return sum([player.points[year].projected_points for player in self.starters])
 
@@ -172,7 +172,7 @@ class Team(BaseModel):
     ) -> int:
         """
         Calculate the total randomized points for the whole roster, not just the starters,
-        using the draft year as the default year.
+        using the draft year as the default year
         """
         return sum(
             [
@@ -191,7 +191,7 @@ class Team(BaseModel):
     ) -> int:
         """
         Calculate the total randomized points for the starters only,
-        using the draft year as the default year.
+        using the draft year as the default year
         """
         roster_copy = copy.deepcopy(self.roster)
         for player in roster_copy:
@@ -261,5 +261,7 @@ class League(BaseModel):
 
         # Increment the current draft turn
         self.current_draft_turn += 1
-        self.draft_order.pop(0)
+        self.draft_order.pop(
+            0
+        )  # Update the order to reflect that the turn has been taken
         return

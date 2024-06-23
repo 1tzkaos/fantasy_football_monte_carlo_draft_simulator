@@ -68,7 +68,8 @@ class PositionMaxPoints(BaseModel):
 class PositionTiers(BaseModel):
     """
     The index of the last player (when sorted by projected points)
-    for each position tier
+    for each position tier, which are by default based on a
+    1QB, 2RB, 2WR, 1TE, 1FLEX, 1DST, 1K roster
     """
 
     qb: dict = {

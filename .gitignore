@@ -65,3 +65,6 @@ draft_app.yaml
 
 # Node Modules Not Tracked
 node_modules/
+
+# Ignore downloaded files that are not part of the project
+downloads/

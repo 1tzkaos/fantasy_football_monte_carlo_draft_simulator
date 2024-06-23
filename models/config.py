@@ -26,5 +26,5 @@ MAX_RANDOM_ADJUSTMENT = float(os.getenv("MAX_RANDOM_ADJUSTMENT", 0.1))
 DRAFT_YEAR = int(
     os.getenv("DRAFT_YEAR", datetime.datetime.now().year)
 )  # Default current year
-ROUND_SIZE = int(os.getenv("ROUND_SIZE", 14))  # Very likely the same as roster size
+ROUND_SIZE = int(os.getenv("ROUND_SIZE", 14))
 SNAKE_DRAFT = os.getenv("SNAKE_DRAFT", "True").lower() == "true"

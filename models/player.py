@@ -15,7 +15,7 @@ pt = PositionTiers()
 class PlayerPoints(BaseModel):
     """
     Projected vs. actual points for a single player,
-    which must be calculated separately and placed on a CSV
+    which must be calculated separately and placed on a CSV loaded on main.py
     """
 
     projected_points: float
@@ -51,7 +51,7 @@ class Player(BaseModel):
     name: str
     position: str
     position_tier: str = (
-        None  # DST & K do not have tiers, because they're very streamable
+        None  # DST & K do not have meaningful tiers, because they're very streamable
     )
     nfl_team: str  # Abbreviation, for current draft year
     points: Dict[int, PlayerPoints]  # Key is the year of the points

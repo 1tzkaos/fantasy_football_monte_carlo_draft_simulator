@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-MONTE CARLO NFL DRAFT SIMULATOR
+MONTE CARLO FANTASY FOOTBALL DRAFT SIMULATOR
 """
 from models.config import DRAFT_YEAR, ROUND_SIZE, SNAKE_DRAFT
 from models.player import Player, Players, PlayerPoints
@@ -115,6 +115,7 @@ def create_historical_distributions(
     """
     Use the difference between historical performance and projections
     to create distributions for each position tier
+    (replicating injuries, breakouts, and busts from the past)
     """
     distributions = {}
     for player in players.players:
@@ -194,7 +195,7 @@ def simulate_pick(
 
 def simulate_draft(league: League, players: Players, model: RegressorMixin):
     """
-    Simulate a draft using the logistic model to get probabilities for each position
+    Simulate an entire draft using the logistic model
     """
     draft_order = league.draft_order.copy()
     for i, team_index in enumerate(draft_order):
@@ -213,7 +214,7 @@ def monte_carlo_draft(
 ) -> dict:
     """
     Simulate drafts for each position and return the average points scored
-    to determine which position is best to draft, but only try for the allowed time
+    to determine which position is best to draft
     """
     simulator_team = [i for i, team in enumerate(league.teams) if team.simulator]
     results = {"qb": [], "rb": [], "wr": [], "te": []}
@@ -264,14 +265,21 @@ EXECUTE FROM THE COMMAND LINE
 
 
 def main():
-    draft_players = load_players("data/draft_projections.csv")
-    historical_players = load_players("data/historical_projections.csv")
-    league = load_teams("data/league_teams.csv")
+    data_error = 'Please make sure that the CSV files are in the "data" folder.'
+    try:
+        draft_players = load_players("data/draft_projections.csv")
+        historical_players = load_players("data/historical_projections.csv")
+        league = load_teams("data/league_teams.csv")
+    except:
+        raise ValueError(f"Error while loading data. {data_error}")
 
     # Fit a logistic regression for predicting the position of a draft pick
-    lr_x, lr_y = load_logistic_regression_variables("data/historical_drafts.csv")
-    draft_pick_model = LogisticRegression(max_iter=1000)
-    draft_pick_model.fit(lr_x, lr_y)
+    try:
+        lr_x, lr_y = load_logistic_regression_variables("data/historical_drafts.csv")
+        draft_pick_model = LogisticRegression(max_iter=1000)
+        draft_pick_model.fit(lr_x, lr_y)
+    except:
+        raise ValueError(f"Error while fitting the regression model. {data_error}")
 
     # Max points and position tier distributions for random projections
     position_max_points = create_max_points(draft_players)
@@ -291,11 +299,15 @@ def main():
     SHOULD THIS BE A SIMULATION?
     """
     use_simulator = None
-    print('For practice, you can use a logistic regression model to make picks for other teams.')
-    print('This allows you to speedily check the Monte Carlo simulation results for each round, before the actual draft.')
+    print(
+        "For practice, you can use a logistic regression model to make picks for other teams."
+    )
+    print(
+        "This allows you to speedily check the Monte Carlo simulation results for each round, before the actual draft."
+    )
     while use_simulator not in ["y", "n"]:
         use_simulator = input(
-            "Would you like to use the model, instead of inputting your opponent's picks? (y/n) "
+            "Would you like to use the model, instead of inputting your opponents' picks? (y/n) "
         ).lower()
 
     """
@@ -310,7 +322,9 @@ def main():
         print(f"{league.teams[i].name} is on the clock!")
         player_name = None
         if league.teams[i].simulator:
-            print(f"Simulating draft for {league.teams[i].name}...")
+
+            # Run the Monte Carlo simulation for the round
+            print(f"Running Monte Carlo simulation for {league.teams[i].name}...")
             result = monte_carlo_draft(
                 league,
                 draft_players,
@@ -333,24 +347,23 @@ def main():
                 for player in draft_players.__getattribute__(best_position)
                 if player.drafted == False
             ][0]
-            player_name = best_player.name
-            print(f"The best player to draft is {player_name}.")
+            print(f"The best player to draft is {best_player.name}.")
 
-        # Draft a player
-        if use_simulator == "n":
-            while player_name is None:
-                player_input = input(f"Who did {league.teams[i].name} draft? ")
-                if player_input in [p.name for p in draft_players.players]:
-                    player_name = player_input
-                else:
-                    print(
-                        f"{player_input} is not a valid player name. Please try again."
-                    )
-        else:
-            if not player_name:
-                player_name = simulate_pick(
-                    league, draft_players, draft_pick_model, i, pick_number
-                )
+        # Else if the simulator is being use
+        elif use_simulator == "y":
+            player_name = simulate_pick(
+                league, draft_players, draft_pick_model, i, pick_number
+            )
+
+        # Ask for who was actually drafted
+        while player_name is None:
+            player_input = input(f"Who did {league.teams[i].name} draft? ")
+            if player_input in [p.name for p in draft_players.players]:
+                player_name = player_input
+            else:
+                print(f"{player_input} is not a valid player name. Please try again.")
+
+        # Draft the player
         draft_player(player_name, league, draft_players)
         print(f"{league.teams[i].name} selected {player_name}.\n")
 
@@ -387,7 +400,9 @@ def main():
         print(f"{i + 1}. {team} ({firsts}% first place finishes): {points} points")
 
     # End the simulator
-    print(f"\nThe draft is complete! Thank you for using the Fantasy Football Monte Carlo Draft Simulator.")
+    print(
+        f"\nThe draft is complete! Thank you for using the Fantasy Football Monte Carlo Draft Simulator."
+    )
     print("May the best team (your team) win.\n")
     return
 
