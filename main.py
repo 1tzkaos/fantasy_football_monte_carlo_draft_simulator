@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-MONTE CARLO FANTASY FOOTBALL DRAFT SIMULATOR
+MONTE CARLO FANTASY FOOTBALL DRAFT SIMULATOR FEATURING PYDANTIC
 """
 from models.config import DRAFT_YEAR, ROUND_SIZE, SNAKE_DRAFT
 from models.player import Player, Players, PlayerPoints
@@ -161,7 +161,7 @@ def simulate_pick(
     model: RegressorMixin,
     team_index: int,
     pick_number: int,
-):
+) -> str:
     """
     Simulate a pick using the logistic model to get probabilities for each position
     """
@@ -357,7 +357,7 @@ def main():
 
         # Ask for who was actually drafted
         while player_name is None:
-            player_input = input(f"Who did {league.teams[i].name} draft? ")
+            player_input = input(f"Whom did {league.teams[i].name} draft? ")
             if player_input in [p.name for p in draft_players.players]:
                 player_name = player_input
             else:

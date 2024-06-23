@@ -66,5 +66,6 @@ draft_app.yaml
 # Node Modules Not Tracked
 node_modules/
 
-# Ignore downloaded files that are not part of the project
+# Ignore downloaded files and personal settings that are not a part of the public project
 downloads/
+data/personal_league_teams.csv
