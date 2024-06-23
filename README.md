@@ -65,7 +65,7 @@ The following columns are required:
 
 ### League Teams
 
-This file provides the details for the league. Other information, like whether the simulation should replicate a snake draft, should be contained within the `.env` file, which is read by `models/config.py`.
+This file provides the details for your league. Other information, like whether the simulation should replicate a snake draft, should be contained within the `.env` file, which is read by `models/config.py`.
 
 The following columns are required:
 
