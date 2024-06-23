@@ -1,4 +1,4 @@
-# Monte Carlo Fantasy Football Draft Simulator Featuring Pydantic
+# Monte Carlo Fantasy Football Draft Simulator, Featuring Pydantic
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3120/)
@@ -12,9 +12,9 @@ This program is my attempt to solve both of those problems. To better estimate w
 
 ## Why Does The Simulator Use Pydantic Models?
 
-[Pydantic](https://docs.pydantic.dev/latest/) models enable complex validation logic for Python classes and can be imported for use in [FastAPI](https://fastapi.tiangolo.com/) routes. Originally, I intended this simulator to be a full FastAPI backend, but as the program developed, my personal use case (for the 2024 draft year, anyways) was largely solved with inputs from the command line.
+[Pydantic](https://docs.pydantic.dev/latest/) models enable complex validation logic for Python classes and can be imported for use in [FastAPI](https://fastapi.tiangolo.com/) routes. Originally, I intended the simulator to be a full FastAPI backend, but as the program developed, my personal use case (for the 2024 draft year, anyways) was largely solved with inputs from the command line.
 
-In the future, I may build a full backend (with these Pydantic models) and frontend to help other users complete their drafts. But first, I'll see how well the simulator performs during the 2024 season...
+In the future, I may build a full backend with these Pydantic models and frontend to help other users complete their drafts. But first, I'll see how well the simulator performs during the 2024 season...
 
 ## Running The Simulator
 
@@ -28,11 +28,6 @@ python3.12 main.py
 ```
 
 To correctly return results for your league, you'll need to edit a couple of files in `data/`:
-
-- draft_projections.csv
-- historical_drafts.csv
-- historical_projections.csv
-- league_teams.csv
 
 ### Draft Projections File
 
@@ -48,7 +43,7 @@ The following columns are required:
 
 ### Historical Projections
 
-Like `draft_projections.csv`, this file should include player names, positions, and projected points but for previous seasons. Additionally, it should include a column that tallies the actual number of points a player scored in that year.
+Like `draft_projections.csv`, this file should include player names, positions, and projected points for previous seasons. Additionally, it should include a column that tallies the actual number of points a player scored in that year.
 
 The following columns are required:
 
@@ -57,7 +52,7 @@ The following columns are required:
 - Pos
 - Team
 - Projected FFP
-- Actual FFP (should be empty for the current draft year)
+- Actual FFP
 
 ### Historical Drafts
 
@@ -70,7 +65,7 @@ The following columns are required:
 
 ### League Teams
 
-This file provides the details for the league. Other information, like whether the simulation should replicate a snake draft, is contained within the `.env` file, which is read by `models/config.py`.
+This file provides the details for the league. Other information, like whether the simulation should replicate a snake draft, should be contained within the `.env` file, which is read by `models/config.py`.
 
 The following columns are required:
 
@@ -92,7 +87,7 @@ Whom did Team 3 draft? Jonathan Taylor
 Team 3 selected Jonathan Taylor.
 ```
 
-When the simulating team is drafting, the program will run as many Monte Carlo simulations of the draft as it can within its specified time period (which defaults to 30 seconds). Then, it will report the average amount of points the simulating team is expected to gain, given the drafting of the best player at each position, exluding kickers and defenses until round 7.
+When the simulating team is drafting, the program will run as many Monte Carlo simulations of the draft as it can within its specified time period (which defaults to 30 seconds). Then, it will report the average amount of points the simulating team is expected to gain, given the drafting of the best player at each position, excluding kickers and defenses until round 7.
 
 ```console
 ROUND 2, PICK 14
@@ -113,7 +108,7 @@ Whom did Team 1 draft? Mike Evans
 Team 1 selected Mike Evans.
 ```
 
-You don't need to select the player the program recommends. In fact, there's a small (but not zero) chance that it may make a horrible recommendation, because randomness plays a role in both its calculations of player points and projections of other teams' draft selections. Simply type the name of the player you actually selected, and the program will accept its mistake and carry on as usual.
+You don't need to select the player the program recommends. In fact, there's a small (but not zero) chance that it may make a horrible recommendation, because randomness plays a role in both its calculations of players' points and projections of other teams' draft selections. Simply type the name of the player you actually selected, and the program will accept its mistake and carry on as usual.
 
 ## Contributing
 
