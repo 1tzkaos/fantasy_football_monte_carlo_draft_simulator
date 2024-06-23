@@ -1,0 +1,325 @@
+﻿Season,Pos,Player,Team,Projected FFP
+2024,DST,Cowboys,DAL,123
+2024,DST,Eagles,PHI,123
+2024,DST,Ravens,BAL,122
+2024,DST,Bengals,CIN,120
+2024,DST,Bills,BUF,120
+2024,DST,Browns,CLE,120
+2024,DST,Colts,IND,120
+2024,DST,Jets,NYJ,120
+2024,DST,Giants,NYG,118
+2024,DST,Buccaneers,TB,117
+2024,DST,Chargers,LAC,117
+2024,DST,Chiefs,KC,117
+2024,DST,Texans,HOU,117
+2024,DST,Commanders,WSH,116
+2024,DST,Dolphins,MIA,116
+2024,DST,Lions,DET,116
+2024,DST,Steelers,PIT,116
+2024,DST,49ers,SF,115
+2024,DST,Jaguars,JAX,113
+2024,DST,Packers,GB,113
+2024,DST,Saints,NO,113
+2024,DST,Seahawks,SEA,113
+2024,DST,Vikings,MIN,113
+2024,DST,Broncos,DEN,110
+2024,DST,Falcons,ATL,108
+2024,DST,Patriots,NE,108
+2024,DST,Raiders,LV,108
+2024,DST,Rams,LAR,107
+2024,DST,Bears,CHI,106
+2024,DST,Titans,TEN,105
+2024,DST,Cardinals,ARI,104
+2024,DST,Panthers,CAR,104
+2024,K,Justin Tucker,BAL,108
+2024,K,Evan McPherson,CIN,107
+2024,K,Harrison Butker,KC,102
+2024,K,Brandon Aubrey,DAL,99
+2024,K,Younghoe Koo,ATL,96
+2024,K,Cameron Dicker,LAC,95
+2024,K,Greg Zuerlein,NYJ,95
+2024,K,Kaimi Fairbairn,HOU,93
+2024,K,Jake Moody,SF,93
+2024,K,Michael Badgley,DET,92
+2024,K,Jason Sanders,MIA,92
+2024,K,Jake Elliott,PHI,91
+2024,K,Dustin Hopkins,CLE,91
+2024,K,Tyler Bass,BUF,90
+2024,QB,Josh Allen,BUF,396
+2024,QB,Lamar Jackson,BAL,376
+2024,QB,Jalen Hurts,PHI,374
+2024,QB,Patrick Mahomes,KC,367
+2024,QB,Anthony Richardson,IND,338
+2024,QB,Dak Prescott,DAL,334
+2024,QB,Joe Burrow,CIN,331
+2024,QB,Jayden Daniels,WSH,331
+2024,QB,C.J. Stroud,HOU,331
+2024,QB,Jordan Love,GB,327
+2024,QB,Caleb Williams,CHI,318
+2024,QB,Kyler Murray,ARI,314
+2024,QB,Brock Purdy,SF,311
+2024,QB,Trevor Lawrence,JAX,310
+2024,QB,Justin Herbert,LAC,309
+2024,QB,Jared Goff,DET,306
+2024,QB,Tua Tagovailoa,MIA,302
+2024,QB,Aaron Rodgers,NYJ,299
+2024,QB,Kirk Cousins,ATL,296
+2024,QB,Deshaun Watson,CLE,293
+2024,QB,Matthew Stafford,LAR,291
+2024,QB,Baker Mayfield,TB,285
+2024,QB,J.J. McCarthy,MIN,285
+2024,QB,Geno Smith,SEA,278
+2024,QB,Bryce Young,CAR,278
+2024,QB,Will Levis,TEN,273
+2024,QB,Derek Carr,NO,258
+2024,QB,Drake Maye,NE,239
+2024,QB,Daniel Jones,NYG,222
+2024,QB,Russell Wilson,PIT,202
+2024,QB,Bo Nix,DEN,201
+2024,QB,Gardner Minshew,LV,162
+2024,QB,Justin Fields,PIT,101
+2024,QB,Aidan O'Connell,LV,99
+2024,RB,Christian McCaffrey,SF,302
+2024,RB,Jonathan Taylor,IND,258
+2024,RB,Breece Hall,NYJ,257
+2024,RB,Bijan Robinson,ATL,245
+2024,RB,Saquon Barkley,PHI,236
+2024,RB,Derrick Henry,BAL,231
+2024,RB,Kyren Williams,LAR,229
+2024,RB,Jahmyr Gibbs,DET,221
+2024,RB,Joe Mixon,HOU,220
+2024,RB,Isiah Pacheco,KC,217
+2024,RB,De'Von Achane,MIA,209
+2024,RB,Aaron Jones,MIN,209
+2024,RB,Rachaad White,TB,207
+2024,RB,Rhamondre Stevenson,NE,198
+2024,RB,Josh Jacobs,GB,196
+2024,RB,Travis Etienne,JAX,191
+2024,RB,Kenneth Walker,SEA,191
+2024,RB,Zamir White,LV,190
+2024,RB,Nick Chubb,CLE,186
+2024,RB,Alvin Kamara,NO,186
+2024,RB,James Conner,ARI,183
+2024,RB,Ezekiel Elliott,DAL,183
+2024,RB,D'Andre Swift,CHI,182
+2024,RB,James Cook,BUF,180
+2024,RB,Tyjae Spears,TEN,180
+2024,RB,David Montgomery,DET,169
+2024,RB,Brian Robinson,WSH,165
+2024,RB,Gus Edwards,LAC,164
+2024,RB,Raheem Mostert,MIA,162
+2024,RB,Zack Moss,CIN,161
+2024,RB,Devin Singletary,NYG,161
+2024,RB,Tony Pollard,TEN,158
+2024,RB,Chuba Hubbard,CAR,155
+2024,RB,Najee Harris,PIT,152
+2024,RB,Javonte Williams,DEN,147
+2024,RB,Austin Ekeler,WSH,143
+2024,RB,Zach Charbonnet,SEA,141
+2024,RB,Jaylen Warren,PIT,140
+2024,RB,Rico Dowdle,DAL,123
+2024,RB,Tyler Allgeier,ATL,117
+2024,RB,Ty Chandler,MIN,117
+2024,RB,Trey Benson,ARI,114
+2024,RB,Chase Brown,CIN,113
+2024,RB,Jerome Ford,CLE,113
+2024,RB,Antonio Gibson,NE,112
+2024,RB,Jonathon Brooks,CAR,111
+2024,RB,J.K. Dobbins,LAC,110
+2024,RB,Blake Corum,LAR,108
+2024,RB,Kendre Miller,NO,106
+2024,RB,Ray Davis,BUF,95
+2024,RB,Samaje Perine,DEN,95
+2024,RB,MarShawn Lloyd,GB,92
+2024,RB,Jaylen Wright,MIA,91
+2024,RB,Roschon Johnson,CHI,91
+2024,RB,Audric Estime,DEN,82
+2024,RB,Cordarrelle Patterson,PIT,81
+2024,RB,Bucky Irving,TB,80
+2024,RB,Tank Bigsby,JAX,80
+2024,RB,Khalil Herbert,CHI,76
+2024,RB,Alexander Mattison,LV,73
+2024,RB,Braelon Allen,NYJ,73
+2024,RB,Kenneth Gainwell,PHI,71
+2024,RB,Clyde Edwards-Helaire,KC,70
+2024,RB,Elijah Mitchell,SF,68
+2024,RB,Jawhar Jordan,HOU,66
+2024,RB,Isaac Guerendo,SF,66
+2024,RB,Dylan Laube,LV,66
+2024,RB,Eric Gray,NYG,63
+2024,RB,Tyrone Tracy,NYG,60
+2024,RB,Chase Edmonds,TB,59
+2024,RB,Kimani Vidal,LAC,58
+2024,RB,Rasheen Ali,BAL,56
+2024,RB,D'Onta Foreman,CLE,50
+2024,RB,Jamaal Williams,NO,47
+2024,RB,AJ Dillon,GB,47
+2024,TE,Travis Kelce,KC,191
+2024,TE,Sam LaPorta,DET,184
+2024,TE,Mark Andrews,BAL,182
+2024,TE,Trey McBride,ARI,168
+2024,TE,Kyle Pitts,ATL,162
+2024,TE,Dalton Kincaid,BUF,155
+2024,TE,George Kittle,SF,155
+2024,TE,David Njoku,CLE,146
+2024,TE,Jake Ferguson,DAL,146
+2024,TE,Evan Engram,JAX,143
+2024,TE,Dallas Goedert,PHI,131
+2024,TE,Brock Bowers,LV,131
+2024,TE,T.J. Hockenson,MIN,123
+2024,TE,Cole Kmet,CHI,113
+2024,TE,Pat Freiermuth,PIT,111
+2024,TE,Taysom Hill,NO,109
+2024,TE,Chigoziem Okonkwo,TEN,106
+2024,TE,Luke Musgrave,GB,100
+2024,TE,Hunter Henry,NE,97
+2024,TE,Tyler Higbee,LAR,94
+2024,TE,Jelani Woods,IND,90
+2024,TE,Juwan Johnson,NO,89
+2024,TE,Daniel Bellinger,NYG,88
+2024,TE,Cade Otton,TB,88
+2024,TE,Dalton Schultz,HOU,87
+2024,TE,Tyler Conklin,NYJ,83
+2024,TE,Noah Fant,SEA,78
+2024,TE,Jonnu Smith,MIA,69
+2024,TE,Zach Ertz,WSH,69
+2024,TE,Mike Gesicki,CIN,68
+2024,TE,Tucker Kraft,GB,67
+2024,TE,Michael Mayer,LV,61
+2024,TE,Will Dissly,LAC,60
+2024,TE,Ja'Tavion Sanders,CAR,59
+2024,TE,Dawson Knox,BUF,58
+2024,TE,Colby Parkinson,LAR,56
+2024,TE,Isaiah Likely,BAL,55
+2024,TE,Austin Hooper,NE,55
+2024,TE,Tommy Tremble,CAR,55
+2024,TE,Greg Dulcich,DEN,53
+2024,TE,Ben Sinnott,WSH,49
+2024,TE,Jeremy Ruckert,NYJ,48
+2024,TE,Donald Parham,LAC,47
+2024,TE,Josh Oliver,MIN,46
+2024,TE,Theo Johnson,NYG,44
+2024,TE,Mo Alie-Cox,IND,37
+2024,TE,Adam Trautman,DEN,32
+2024,WR,Tyreek Hill,MIA,276
+2024,WR,CeeDee Lamb,DAL,253
+2024,WR,Amon-Ra St. Brown,DET,251
+2024,WR,Justin Jefferson,MIN,245
+2024,WR,Ja'Marr Chase,CIN,239
+2024,WR,Puka Nacua,LAR,229
+2024,WR,Deebo Samuel,SF,227
+2024,WR,A.J. Brown,PHI,217
+2024,WR,Mike Evans,TB,211
+2024,WR,Brandon Aiyuk,SF,210
+2024,WR,Nico Collins,HOU,205
+2024,WR,Marvin Harrison,ARI,205
+2024,WR,Jaylen Waddle,MIA,202
+2024,WR,Tee Higgins,CIN,201
+2024,WR,DK Metcalf,SEA,200
+2024,WR,Drake London,ATL,196
+2024,WR,Garrett Wilson,NYJ,194
+2024,WR,Jayden Reed,GB,192
+2024,WR,DJ Moore,CHI,191
+2024,WR,Chris Olave,NO,190
+2024,WR,George Pickens,PIT,189
+2024,WR,Amari Cooper,CLE,186
+2024,WR,DeVonta Smith,PHI,184
+2024,WR,Malik Nabers,NYG,183
+2024,WR,Stefon Diggs,HOU,182
+2024,WR,Davante Adams,LV,181
+2024,WR,DeAndre Hopkins,TEN,181
+2024,WR,Jordan Addison,MIN,180
+2024,WR,Cooper Kupp,LAR,179
+2024,WR,Christian Kirk,JAX,178
+2024,WR,Tank Dell,HOU,178
+2024,WR,Brian Thomas,JAX,177
+2024,WR,Courtland Sutton,DEN,176
+2024,WR,Rashee Rice,KC,174
+2024,WR,Terry McLaurin,WSH,173
+2024,WR,Chris Godwin,TB,173
+2024,WR,Zay Flowers,BAL,172
+2024,WR,Jameson Williams,DET,171
+2024,WR,Curtis Samuel,BUF,168
+2024,WR,Keon Coleman,BUF,167
+2024,WR,Ladd McConkey,LAC,166
+2024,WR,Christian Watson,GB,166
+2024,WR,Xavier Legette,CAR,163
+2024,WR,Michael Pittman,IND,161
+2024,WR,Brandin Cooks,DAL,160
+2024,WR,Jaxon Smith-Njigba,SEA,160
+2024,WR,Xavier Worthy,KC,159
+2024,WR,Diontae Johnson,CAR,157
+2024,WR,Calvin Ridley,TEN,155
+2024,WR,Mike Williams,NYJ,154
+2024,WR,Jakobi Meyers,LV,153
+2024,WR,Keenan Allen,CHI,151
+2024,WR,Tyler Lockett,SEA,149
+2024,WR,Marquise Brown,KC,148
+2024,WR,Michael Wilson,ARI,145
+2024,WR,Roman Wilson,PIT,144
+2024,WR,Demarcus Robinson,LAR,144
+2024,WR,Jahan Dotson,WSH,140
+2024,WR,Darnell Mooney,ATL,138
+2024,WR,Khalil Shakir,BUF,138
+2024,WR,Rashid Shaheed,NO,138
+2024,WR,Romeo Doubs,GB,137
+2024,WR,Rome Odunze,CHI,135
+2024,WR,Joshua Palmer,LAC,135
+2024,WR,Gabe Davis,JAX,134
+2024,WR,Jerry Jeudy,CLE,128
+2024,WR,Josh Downs,IND,127
+2024,WR,Quentin Johnston,LAC,127
+2024,WR,Wan'Dale Robinson,NYG,125
+2024,WR,Jermaine Burton,CIN,119
+2024,WR,Adam Thielen,CAR,118
+2024,WR,Malachi Corley,NYJ,116
+2024,WR,Adonai Mitchell,IND,114
+2024,WR,Demario Douglas,NE,106
+2024,WR,Josh Reynolds,DEN,105
+2024,WR,Marvin Mims,DEN,104
+2024,WR,Rashod Bateman,BAL,104
+2024,WR,Darius Slayton,NYG,100
+2024,WR,Kendrick Bourne,NE,99
+2024,WR,Ja'Lynn Polk,NE,97
+2024,WR,Rondale Moore,ATL,90
+2024,WR,Troy Franklin,DEN,90
+2024,WR,Nelson Agholor,BAL,86
+2024,WR,Greg Dortch,ARI,85
+2024,WR,Elijah Moore,CLE,85
+2024,WR,Jalen Tolbert,DAL,84
+2024,WR,Andrei Iosivas,CIN,84
+2024,WR,Luke McCaffrey,WSH,83
+2024,WR,Van Jefferson,PIT,83
+2024,WR,Trey Palmer,TB,77
+2024,WR,Tyler Boyd,TEN,71
+2024,WR,Cedrick Wilson,NO,70
+2024,WR,Jalen McMillan,TB,68
+2024,WR,JuJu Smith-Schuster,NE,65
+2024,WR,Ricky Pearsall,SF,63
+2024,WR,Brandon Powell,MIN,61
+2024,WR,Kalif Raymond,DET,60
+2024,WR,Dontayvion Wicks,GB,60
+2024,WR,Odell Beckham,MIA,57
+2024,WR,DeVante Parker,PHI,56
+2024,WR,Kadarius Toney,KC,54
+2024,WR,Michael Gallup,LV,48
+2024,WR,Jamison Crowder,WSH,46
+2024,WR,A.T. Perry,NO,46
+2024,WR,Devontez Walker,BAL,42
+2024,WR,Allen Lazard,NYJ,42
+2024,WR,Cedric Tillman,CLE,40
+2024,K,Jason Myers,SEA,89
+2024,K,Blake Grupe,NO,89
+2024,K,Daniel Carlson,LV,88
+2024,K,Joshua Karty,LAR,88
+2024,K,Anders Carlson,GB,88
+2024,K,Cairo Santos,CHI,87
+2024,K,Chase McLaughlin,TB,86
+2024,K,Matt Gay,IND,86
+2024,K,Chris Boswell,PIT,86
+2024,K,Matt Prater,ARI,86
+2024,K,Nick Folk,TEN,84
+2024,K,Graham Gano,NYG,84
+2024,K,Will Lutz,DEN,82
+2024,K,Will Reichard,MIN,81
+2024,K,Chad Ryland,NE,79
