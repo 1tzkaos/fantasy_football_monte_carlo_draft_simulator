@@ -6,7 +6,7 @@
 
 ## How Does The Simulator Work?
 
-In previous fantasy football drafts, I have struggled to pick the right players. At the start, I sometimes pick players whose point projections are not dramatically different than the projections of players who are still available in later rounds. At the end, I fail to pick backups for my players who are at the most risk of injury.
+In previous fantasy football drafts, I have struggled to pick the right players. At the start, I select players whose point projections are not dramatically different than the projections of players who are still available in later rounds. At the end, I fail to draft backups for players who are at the most risk of injury.
 
 This program is my attempt to solve both of those problems. To better estimate whether a player is especially valuable in a given round, a Monte Carlo simulation uses a logistic regression of historical draft data to guess which players will be available in later rounds of the draft, ensuring that I never pick a player who is easily replaceable. And to more accurately anticipate which players need strong backups (not streamers), this program randomly assigns injuries and other setbacks to players, based on historical data, so I always load up on talented individuals in my most at-risk positions.
 
@@ -14,7 +14,7 @@ This program is my attempt to solve both of those problems. To better estimate w
 
 [Pydantic](https://docs.pydantic.dev/latest/) models enable complex validation logic for Python classes and can be imported for use in [FastAPI](https://fastapi.tiangolo.com/) routes. Originally, I intended the simulator to be a full FastAPI backend, but as the program developed, my personal use case (for the 2024 draft year, anyways) was largely solved with inputs from the command line.
 
-In the future, I may build a full backend with these Pydantic models and frontend to help other users complete their drafts. But first, I'll see how well the simulator performs during the 2024 season...
+In the future, I may build a full backend with these Pydantic models and a frontend to help other users complete their drafts. But first, I'll see how well the simulator performs during the 2024 season...
 
 ## Running The Simulator
 
@@ -56,7 +56,7 @@ The following columns are required:
 
 ### Historical Drafts
 
-This file informs the logistic regression that models how other teams in your league are predicted to pick. Ideally, it should be a reformatted download of your league's draft history.
+This file informs the logistic regression that models how other teams in your league are predicted to pick. Ideally, it should be a reformatted download of your league's draft history for previous years. For example, [Sleeper](https://docs.sleeper.com/) provides an API for accessing draft histories.
 
 The following columns are required:
 
@@ -78,7 +78,7 @@ Technically, more than one team may be the simulator – or be owned by the user
 
 ## Sample Results
 
-For each pick in which the simulating team is not drafting, the program will ask the user to input opponents' selections:
+For each pick in which the simulating team or user is not drafting, the program will ask the user to input opponents' selections:
 
 ```console
 ROUND 1, PICK 3
@@ -108,11 +108,11 @@ Whom did Team 1 draft? Mike Evans
 Team 1 selected Mike Evans.
 ```
 
-You don't need to select the player the program recommends. In fact, there's a small (but not zero) chance that it may make a horrible recommendation, because randomness plays a role in both its calculations of players' points and projections of other teams' draft selections. Simply type the name of the player you actually selected, and the program will accept its mistake and carry on as usual.
+You don't have to select the player the program recommends. In fact, there's a small (but not zero) chance that the program may make a horrible recommendation, because randomness plays a role in both its calculations of players' points and projections of other teams' draft selections. Simply type the name of the player you actually selected, and the program will accept its mistake and carry on as usual.
 
 ## Contributing
 
-The program is ready for 2024 fantasy football drafts, but it is still a work in progress. If you find it valuable but notice bugs, need changes, or require additional features, [open an issue](https://github.com/joewlos/activitypubdantic/issues) or fork to [start a PR](https://github.com/joewlos/activitypubdantic/pulls).
+The program is ready for 2024 fantasy football drafts, but it is still a work in progress. If you find it valuable but notice bugs, need changes, or require additional features, [open an issue](https://github.com/joewlos/fantasy_football_monte_carlo_draft_simulator/issues) or fork to [start a PR](https://github.com/joewlos/fantasy_football_monte_carlo_draft_simulator/pulls).
 
 The `requirements.txt` file includes all of the packages your virtual environment needs, including `black` for formatting.
 
