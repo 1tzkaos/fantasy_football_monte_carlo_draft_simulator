@@ -269,7 +269,7 @@ def main():
     try:
         draft_players = load_players("data/draft_projections.csv")
         historical_players = load_players("data/historical_projections.csv")
-        league = load_teams("data/league_teams.csv")
+        league = load_teams("data/personal_league_teams.csv")
     except:
         raise ValueError(f"Error while loading data. {data_error}")
 
