@@ -1,4 +1,4 @@
-export default function BlogLayout({
+export default function SetupLayout({
   children,
 }: {
   children: React.ReactNode;
