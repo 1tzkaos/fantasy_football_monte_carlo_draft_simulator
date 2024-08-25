@@ -9,31 +9,19 @@ import { GithubIcon } from "@/components/icons";
 
 export default function Home() {
   return (
-    <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
+    <section className="flex flex-col items-center justify-center gap-8 py-8 md:py-10">
       <div className="inline-block max-w-lg text-center justify-center">
         <h1 className={title()}>Make&nbsp;</h1>
-        <h1 className={title({ color: "violet" })}>amazing&nbsp;</h1>
-        <br />
-        <h1 className={title()}>
-          websites regardless of your design experience.
-        </h1>
-        <h2 className={subtitle({ class: "mt-4" })}>
-          Beautiful, fast and modern React UI library.
+        <h1 className={title({ color: "green" })}>statistically sound&nbsp;</h1>
+        <br className="hidden md:inline" />
+        <h1 className={title()}>picks for every position.</h1>
+        <h2 className={subtitle({ class: "mb-0" })}>
+          Harness the power of (kind of sort of) artificial intelligence to
+          draft players for your fantasy football team.
         </h2>
       </div>
 
-      <div className="flex gap-3">
-        <Link
-          isExternal
-          className={buttonStyles({
-            color: "primary",
-            radius: "full",
-            variant: "shadow",
-          })}
-          href={siteConfig.links.docs}
-        >
-          Documentation
-        </Link>
+      <div className="flex">
         <Link
           isExternal
           className={buttonStyles({ variant: "bordered", radius: "full" })}
@@ -44,10 +32,14 @@ export default function Home() {
         </Link>
       </div>
 
-      <div className="mt-8">
+      <div>
         <Snippet hideCopyButton hideSymbol variant="bordered">
           <span>
-            Get started by editing <Code color="primary">app/page.tsx</Code>
+            Get started by{" "}
+            <Link href="/setup">
+              <Code color="primary">setting up</Code>
+            </Link>{" "}
+            your draft
           </span>
         </Snippet>
       </div>

@@ -8,8 +8,24 @@ module.exports = {
     "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
+    // fontFamily: { sans: "Arial, sans-serif" },
     extend: {},
   },
   darkMode: "class",
-  plugins: [nextui()],
+  plugins: [
+    nextui({
+      themes: {
+        dark: {
+          colors: {
+            primary: "#17c964",
+          },
+        },
+        light: {
+          colors: {
+            primary: "#17c964",
+          },
+        },
+      },
+    }),
+  ],
 };

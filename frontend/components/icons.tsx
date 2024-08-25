@@ -1,5 +1,6 @@
 import * as React from "react";
 import { GiAmericanFootballHelmet } from "react-icons/gi";
+import { FaPlay } from "react-icons/fa6";
 
 import { IconSvgProps } from "@/types";
 
@@ -15,6 +16,13 @@ export const Logo: React.FC<IconSvgProps> = ({
     {...props}
   />
 );
+
+export const PlayIcon: React.FC<IconSvgProps> = ({
+  size = 36,
+  width,
+  height,
+  ...props
+}) => <FaPlay color="currentColor" size={size || width || height} {...props} />;
 
 export const GithubIcon: React.FC<IconSvgProps> = ({
   size = 24,

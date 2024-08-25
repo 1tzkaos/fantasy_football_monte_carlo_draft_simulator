@@ -1,8 +1,8 @@
 export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {
-  name: "Next.js + NextUI",
-  description: "Make beautiful websites regardless of your design experience.",
+  name: "FF Monte Carlo Draft Simulator",
+  description: "Make statistically sound picks for every position.",
   navItems: [
     {
       label: "Home",
