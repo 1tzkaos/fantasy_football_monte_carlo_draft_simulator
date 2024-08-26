@@ -3,7 +3,9 @@
 import { createContext, useState } from "react";
 import { button as buttonStyles } from "@nextui-org/theme";
 import { Link } from "@nextui-org/link";
+import clsx from "clsx";
 
+import { fontMono } from "@/config/fonts";
 import { PlayIcon } from "@/components/icons";
 import { title, subtitle } from "@/components/primitives";
 import { DraftSettings } from "@/types";
@@ -32,7 +34,7 @@ export default function DraftPage() {
         <h2 className={subtitle()}>
           {`
           Choose one of your previously uploaded settings to train a logistic regression
-          for and run a round-by-round Monte Carlo simulation of your league's draft.
+         and run a round-by-round Monte Carlo simulation of your league's draft.
         `}
         </h2>
       </div>
@@ -55,8 +57,10 @@ export default function DraftPage() {
               href={`/draft/${draftSetting.id}`}
             >
               <div className="text-left">
-                <p className="text-lg">{draftSetting.name}</p>
-                <p className="italic">{draftSetting.created}</p>
+                <p className="text-xl">{draftSetting.name}</p>
+                <p className={clsx("font-mono", fontMono.variable)}>
+                  {draftSetting.created}
+                </p>
               </div>
               <div className="flex-grow flex justify-end text-primary">
                 <PlayIcon />

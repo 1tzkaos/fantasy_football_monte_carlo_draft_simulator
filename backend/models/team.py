@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-PYDANTIC MODELS FOR TEAMS
+ODMANTIC MODELS FOR TEAMS
 """
 from .config import DRAFT_YEAR, ROUND_SIZE, SNAKE_DRAFT
 import copy

@@ -2,7 +2,9 @@ import { Link } from "@nextui-org/link";
 import { Snippet } from "@nextui-org/snippet";
 import { Code } from "@nextui-org/code";
 import { button as buttonStyles } from "@nextui-org/theme";
+import clsx from "clsx";
 
+import { fontMono } from "@/config/fonts";
 import { siteConfig } from "@/config/site";
 import { title, subtitle } from "@/components/primitives";
 import { GithubIcon } from "@/components/icons";
@@ -34,7 +36,7 @@ export default function Home() {
 
       <div>
         <Snippet hideCopyButton hideSymbol variant="bordered">
-          <span>
+          <span className={clsx("font-mono", fontMono.variable)}>
             Get started by{" "}
             <Link href="/setup">
               <Code color="primary">setting up</Code>
