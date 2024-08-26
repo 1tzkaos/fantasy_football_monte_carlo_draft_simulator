@@ -12,7 +12,7 @@ interface DraftContextType {
   draftSettings: DraftSettings[];
 }
 
-export const DraftContext = createContext<DraftContextType>({
+const DraftContext = createContext<DraftContextType>({
   draftSettings: [],
 });
 
