@@ -32,7 +32,7 @@ export default function DraftPage() {
         <h2 className={subtitle()}>
           {`
           Choose one of your previously uploaded settings to train a logistic regression
-          and run a round-by-round Monte Carlo simulation for your league's draft.
+          for and run a round-by-round Monte Carlo simulation of your league's draft.
         `}
         </h2>
       </div>

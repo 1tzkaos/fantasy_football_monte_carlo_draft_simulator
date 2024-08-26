@@ -76,15 +76,26 @@ export default function RootLayout({
               "
             >
               <p className="text-default-600 text-current">By Joe Wlos</p>
-              <Link
-                isExternal
-                className="flex items-center gap-1 text-current"
-                href="https://nextui-docs-v2.vercel.app?utm_source=next-app-template"
-                title="nextui.org homepage"
-              >
-                <span className="text-default-600">Powered by</span>
-                <span className="text-primary">NextUI</span>
-              </Link>
+              <p className="text-default-600 text-current">
+                Powered by{" "}
+                <Link
+                  isExternal
+                  className="text-primary"
+                  href="https://nextui-docs-v2.vercel.app?utm_source=next-app-template"
+                  title="nextui.org homepage"
+                >
+                  NextUI
+                </Link>{" "}
+                and{" "}
+                <Link
+                  isExternal
+                  className="text-primary"
+                  href="https://art049.github.io/odmantic/"
+                  title="odmantic homepage"
+                >
+                  ODMantic
+                </Link>
+              </p>
             </footer>
           </div>
         </Providers>

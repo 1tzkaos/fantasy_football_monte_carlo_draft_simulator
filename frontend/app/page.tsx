@@ -39,7 +39,7 @@ export default function Home() {
             <Link href="/setup">
               <Code color="primary">setting up</Code>
             </Link>{" "}
-            your draft
+            a draft
           </span>
         </Snippet>
       </div>

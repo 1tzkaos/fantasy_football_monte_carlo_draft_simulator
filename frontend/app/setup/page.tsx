@@ -4,7 +4,7 @@ export default function SetupPage() {
   return (
     <section className="flex flex-col items-center justify-center gap-8 py-8 md:py-10">
       <div className="inline-block max-w-lg text-center justify-center">
-        <h1 className={title()}>{`Configure your draft's settings.`}</h1>
+        <h1 className={title()}>{`Configure settings for a new draft.`}</h1>
         <h2 className={subtitle()}>
           {`
           Upload your league's teams and draft order, player projections, 

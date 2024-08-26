@@ -2,14 +2,15 @@
 """
 PYDANTIC MODELS FOR TEAMS
 """
-from annotated_types import Len
-from .config import DRAFT_YEAR, ROSTER_SIZE, ROUND_SIZE, SNAKE_DRAFT, STARTERS_SIZE
+from .config import DRAFT_YEAR, ROUND_SIZE, SNAKE_DRAFT
 import copy
-from .player import Player
+import datetime
+from .player import Player, Players
 from .position import PositionMaxPoints, PositionSizes, PositionTierDistributions
+from odmantic import EmbeddedModel, Model, ObjectId, Reference
 from pydantic import BaseModel, ConfigDict, model_validator
 from sklearn.base import RegressorMixin
-from typing import Annotated, List
+from typing import List
 
 
 # Load the position sizes, determined by environment variables
@@ -72,7 +73,7 @@ MODELS
 """
 
 
-class Team(BaseModel):
+class Team(EmbeddedModel):
     """
     A fantasy football team with a name, owner, and roster of players,
     which updates its starters with the best players when they are added
@@ -80,8 +81,8 @@ class Team(BaseModel):
     """
 
     model_config = ConfigDict(
-        validate_assignment=True
-    )  # Enable validation on assignment, so that starters are updated
+        arbitrary_types_allowed=True,
+    )
 
     # Team information, including whether or not this team is the "simulator's"
     name: str
@@ -90,17 +91,17 @@ class Team(BaseModel):
     draft_order: int
 
     # Roster is a list of players, while starters are the best for a position
-    roster: Annotated[List[Player], Len(max_length=ROSTER_SIZE)] = []
-    starters: Annotated[List[Player], Len(max_length=STARTERS_SIZE)] = []
+    roster: List[Player] = []
+    starters: List[Player] = []
 
     # Starting positions
-    qb: Annotated[List[Player], Len(max_length=ps.qb)] = []
-    rb: Annotated[List[Player], Len(max_length=ps.rb)] = []
-    wr: Annotated[List[Player], Len(max_length=ps.wr)] = []
-    te: Annotated[List[Player], Len(max_length=ps.te)] = []
-    flex: Annotated[List[Player], Len(max_length=ps.flex)] = []
-    dst: Annotated[List[Player], Len(max_length=ps.dst)] = []
-    k: Annotated[List[Player], Len(max_length=ps.k)] = []
+    qb: List[Player] = []
+    rb: List[Player] = []
+    wr: List[Player] = []
+    te: List[Player] = []
+    flex: List[Player] = []
+    dst: List[Player] = []
+    k: List[Player] = []
 
     @model_validator(mode="before")
     def autofill_starters(cls, data):
@@ -202,16 +203,46 @@ class Team(BaseModel):
         return sum([player["points"][year]["projected_points"] for player in starters])
 
 
-class League(BaseModel):
+class LogisticRegressionVariables(EmbeddedModel):
+    """
+    Variables for the logistic regression model, which are stored in the league
+    """
+
+    x: List[int] = []
+    y: List[str] = []
+
+
+class LeagueSimple(BaseModel):
+    """
+    Just the basic information about a league, as a Pydantic model,
+    to return to the user in the API, not model in the database
+    """
+
+    created: datetime.datetime = datetime.datetime.now()
+    name: str = "Fantasy Football League"
+    ready_for_draft: bool
+    id: ObjectId
+
+
+class League(Model):
     """
     All teams in the league, with draft order, based on settings
     """
 
+    created: datetime.datetime = datetime.datetime.now()
+    name: str = "Fantasy Football League"
+    ready_for_draft: bool = False
     teams: List[Team]
     snake_draft: bool = SNAKE_DRAFT
     draft_order: List[int] = []
     draft_results: List[Team] = []
     current_draft_turn: int = 0
+    players: Players = Players()
+    position_tier_distributions: PositionTierDistributions = PositionTierDistributions()
+    position_max_points: PositionMaxPoints = PositionMaxPoints()
+    logistic_regression_variables: LogisticRegressionVariables = (
+        LogisticRegressionVariables()
+    )
 
     @model_validator(mode="before")
     def sort_by_draft_order(cls, data):
@@ -219,6 +250,18 @@ class League(BaseModel):
         Sort the teams into their draft order and then create a list of their indices
         to help populate the draft results
         """
+        if not all([isinstance(team, Team) for team in data["teams"]]):
+            data["teams"] = [Team(**team) for team in data["teams"]]
+        if not (
+            isinstance(
+                data["logistic_regression_variables"], LogisticRegressionVariables
+            )
+        ):
+            data["logistic_regression_variables"] = LogisticRegressionVariables(
+                **data["logistic_regression_variables"]
+            )
+
+        # Sort the teams
         data["teams"] = sorted(data["teams"], key=lambda x: x.draft_order)
 
         # For the number of rounds, create the draft order as a list
@@ -232,6 +275,15 @@ class League(BaseModel):
                     data["draft_order"].extend(team_indices[::-1])
             else:
                 data["draft_order"].extend(team_indices)
+
+        # Check if we are ready to draft
+        if (
+            len(data["teams"]) > 0
+            and len(data["players"]) > 0
+            and len(data["logistic_regression_variables"].x) > 0
+            and len(data["logistic_regression_variables"].y) > 0
+        ):
+            data["ready_for_draft"] = True
 
         # Return the data to populate the model
         return data
@@ -265,3 +317,8 @@ class League(BaseModel):
             0
         )  # Update the order to reflect that the turn has been taken
         return
+
+
+class Draft(Model):
+    league: League = Reference()
+    created: datetime.datetime = datetime.datetime.now()

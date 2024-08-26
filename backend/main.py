@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-MONTE CARLO FANTASY FOOTBALL DRAFT SIMULATOR FEATURING PYDANTIC
+MONTE CARLO FANTASY FOOTBALL DRAFT SIMULATOR (COMMAND LINE VERSION)
 """
 from models.config import DRAFT_YEAR, ROUND_SIZE, SNAKE_DRAFT
 from models.player import Player, Players, PlayerPoints
@@ -39,6 +39,7 @@ def load_players(csv: str) -> Players:
                 name=row["Player"],
                 position=row["Pos"],
                 nfl_team=row["Team"],
+                drafted=False,
                 points={
                     int(row["Season"]): PlayerPoints(
                         projected_points=row["Projected FFP"],
@@ -148,7 +149,9 @@ def draft_player(name: str, league: League, players: Players):
     player = [player for player in players.players if player.name == name]
     if player:
         if not player[0].drafted:
-            player[0].drafted = True
+            raw_player = player[0].model_dump()
+            raw_player["drafted"] = True
+            player[0] = Player(**raw_player)
             league.add_player_to_current_draft_turn_team(player[0])
         else:
             raise ValueError(f"{name} has already been drafted.")
