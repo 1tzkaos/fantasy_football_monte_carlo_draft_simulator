@@ -5,6 +5,7 @@ MONTE CARLO FANTASY FOOTBALL DRAFT SIMULATOR BACKEND
 import csv
 from fastapi import FastAPI, File, HTTPException, Response, UploadFile
 from odmantic import AIOEngine, ObjectId
+import random
 from sklearn.base import RegressorMixin
 from sklearn.linear_model import LogisticRegression
 from typing import List
@@ -12,7 +13,14 @@ from typing import List
 from models.config import DRAFT_YEAR, ROUND_SIZE, SNAKE_DRAFT
 from models.player import Player, Players, PlayerPoints
 from models.position import PositionMaxPoints, PositionTierDistributions
-from models.team import Draft, League, LogisticRegressionVariables, LeagueSimple, Team
+from models.team import (
+    Draft,
+    DraftSimple,
+    League,
+    LogisticRegressionVariables,
+    LeagueSimple,
+    Team,
+)
 
 
 # Metadata
@@ -55,6 +63,16 @@ async def get_a_league_by_id(league_id: ObjectId) -> League:
     if not league:
         raise HTTPException(status_code=404, detail="League not found")
     return league
+
+
+async def get_a_draft_by_id(draft_id: ObjectId) -> Draft:
+    """
+    Get a draft by its ID
+    """
+    draft = await engine.find_one(Draft, Draft.id == draft_id)
+    if not draft:
+        raise HTTPException(status_code=404, detail="Draft not found")
+    return draft
 
 
 def create_max_points(
@@ -112,14 +130,57 @@ def fit_logistic_regression_model(
     """
     try:
         draft_pick_model = LogisticRegression(max_iter=1000)
-        draft_pick_model.fit(
-            logistic_regression_variables.x, logistic_regression_variables.y
-        )
+        x = [[int(x)] for x in logistic_regression_variables.x]
+        y = logistic_regression_variables.y
+        draft_pick_model.fit(x, y)
     except:
         raise HTTPException(
             status_code=500, detail="Failed to train logistic regression model"
         )
     return draft_pick_model
+
+
+def simulate_pick(
+    league: League,
+) -> str:
+    """
+    Simulate a pick using the logistic model to get probabilities for each position
+    """
+    players = league.players
+    draft_pick_model = fit_logistic_regression_model(
+        league.logistic_regression_variables
+    )
+
+    # Calculate the weights
+    pick_number = league.current_draft_turn
+    team_index = league.draft_order[pick_number]
+    team = league.teams[team_index]
+    weights = team.draft_turn_position_weights(pick_number + 1, draft_pick_model)
+    weights = {k.lower(): v for k, v in weights.items()}
+
+    # Randomly choose which position to pick, based on the weights
+    positions = list(weights.keys())
+    weights = list(weights.values())
+    position_players = []
+    while len(position_players) == 0:
+        selection = random.choices(positions, weights=weights)[0]
+        position_players = [
+            x for x in getattr(players, selection) if x.drafted == False
+        ]
+
+        # If there are no players left in that position, remove it from the list
+        if len(position_players) == 0:
+            weights.remove(weights[positions.index(selection)])
+            positions.remove(selection)
+
+            # If the total weights are zero, reset them and just go random
+            # (this can happen at the end of the draft)
+            if sum(weights) == 0:
+                weights = [1 for _ in positions]
+
+    # Draft the best draftable player within that position
+    player = position_players[0]
+    return player.name
 
 
 # Routes
@@ -175,6 +236,19 @@ async def delete_league(league_id: ObjectId):
     return Response(status_code=204)
 
 
+@app.post("/league/{league_id}/draft", response_model=Draft, tags=["league"])
+async def create_draft_for_a_league(league_id: ObjectId):
+    """
+    Start a draft for a league
+    """
+    league = await get_a_league_by_id(league_id)
+    if not league.ready_for_draft:
+        raise HTTPException(status_code=400, detail="League is not ready for a draft")
+    draft = Draft(league=league)
+    await engine.save(draft)
+    return draft
+
+
 @app.post("/league/{league_id}/player", response_model=League, tags=["player"])
 async def add_players_to_league(
     league_id: ObjectId,
@@ -205,6 +279,7 @@ async def add_players_to_league(
 
     # Set the max points for each position
     league.position_max_points = create_max_points(league.players)
+    league.ready_position_max_points = True
 
     # Save and return the league
     await engine.save(league)
@@ -283,6 +358,7 @@ async def add_historical_player_data_to_league(
     league.position_tier_distributions = create_historical_distributions(
         Players(players=players)
     )
+    league.ready_position_tier_distributions = True
     await engine.save(league)
     return league
 
@@ -364,12 +440,55 @@ async def delete_historical_draft_data_from_league(league_id: ObjectId):
     return Response(status_code=204)
 
 
-@app.post("/league/{league_id}/draft", response_model=Draft, tags=["draft"])
-async def start_draft(league_id: ObjectId):
+@app.get("/draft/{draft_id}", response_model=Draft, tags=["draft"])
+async def get_draft(draft_id: ObjectId):
     """
-    Start a draft for a league
+    Get a draft by its ID
     """
-    league = await get_a_league_by_id(league_id)
-    draft = Draft(league=league)
-    await engine.save(draft)
+    draft = await get_a_draft_by_id(draft_id)
+    return draft
+
+
+@app.get("/draft", response_model=List[DraftSimple], tags=["draft"])
+async def get_drafts():
+    """
+    Get all drafts from leagues that exist
+    """
+    leagues = await engine.find(League)
+    drafts = []
+    for league in leagues:
+        drafts += await engine.find(Draft, Draft.league == league.id)
+    return drafts
+
+
+@app.post("/draft/{draft_id}/pick", response_model=Draft, tags=["draft"])
+async def make_draft_pick(
+    draft_id: ObjectId, pick: str = "", use_simulator: bool = False
+):
+    """
+    Make a draft pick
+    """
+    draft = await get_a_draft_by_id(draft_id)
+    if pick and use_simulator:
+        raise HTTPException(
+            status_code=400, detail="Cannot include a pick and use the simulator"
+        )
+    if not pick and not use_simulator:
+        raise HTTPException(
+            status_code=400, detail="Must include a pick or use the simulator"
+        )
+
+    # If using the simulator, get a pick name
+    if use_simulator:
+        pick = simulate_pick(draft.league)
+
+    # Find the player picked by name
+    players = draft.league.players.players
+    player = [player for player in players if player.name == pick]
+    if not player:
+        raise HTTPException(status_code=404, detail="Player not found")
+    else:
+        player = player[0]
+
+    # Return the draft after all operations have been performed
     return draft

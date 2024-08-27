@@ -239,20 +239,22 @@ class League(Model):
     current_draft_turn: int = 0
     players: Players = Players()
     position_tier_distributions: PositionTierDistributions = PositionTierDistributions()
+    ready_position_tier_distributions: bool = False
     position_max_points: PositionMaxPoints = PositionMaxPoints()
+    ready_position_max_points: bool = False
     logistic_regression_variables: LogisticRegressionVariables = (
         LogisticRegressionVariables()
     )
 
     @model_validator(mode="before")
-    def sort_by_draft_order(cls, data):
+    def sort_by_draft_order_and_validate_ready_to_draft(cls, data):
         """
         Sort the teams into their draft order and then create a list of their indices
-        to help populate the draft results
+        to help populate the draft results and validate whether a league is ready to draft
         """
         if not all([isinstance(team, Team) for team in data["teams"]]):
             data["teams"] = [Team(**team) for team in data["teams"]]
-        if not (
+        if "logistic_regression_variables" in data and not (
             isinstance(
                 data["logistic_regression_variables"], LogisticRegressionVariables
             )
@@ -260,6 +262,8 @@ class League(Model):
             data["logistic_regression_variables"] = LogisticRegressionVariables(
                 **data["logistic_regression_variables"]
             )
+        if "players" in data and not isinstance(data["players"], Players):
+            data["players"] = Players(**data["players"])
 
         # Sort the teams
         data["teams"] = sorted(data["teams"], key=lambda x: x.draft_order)
@@ -278,10 +282,17 @@ class League(Model):
 
         # Check if we are ready to draft
         if (
-            len(data["teams"]) > 0
-            and len(data["players"]) > 0
+            "teams" in data
+            and len(data["teams"]) > 0
+            and "players" in data
+            and len(data["players"].players) > 0
+            and "logistic_regression_variables" in data
             and len(data["logistic_regression_variables"].x) > 0
             and len(data["logistic_regression_variables"].y) > 0
+            and "ready_position_tier_distributions" in data
+            and data["ready_position_tier_distributions"]
+            and "ready_position_max_points" in data
+            and data["ready_position_max_points"]
         ):
             data["ready_for_draft"] = True
 
@@ -319,6 +330,21 @@ class League(Model):
         return
 
 
+class DraftSimple(BaseModel):
+    """
+    Just the basic information about a draft, as a Pydantic model,
+    to return to the user in the API, not model in the database
+    """
+
+    created: datetime.datetime = datetime.datetime.now()
+    id: ObjectId
+
+
 class Draft(Model):
+    """
+    Drafts include a copy of the league, which has all necessary information,
+    and a created date
+    """
+
     league: League = Reference()
     created: datetime.datetime = datetime.datetime.now()
