@@ -32,10 +32,12 @@ export default function DraftPage() {
       <div className="inline-block max-w-lg text-center justify-center">
         <h1 className={title()}>{`Enter your draft room.`}</h1>
         <h2 className={subtitle()}>
-          {`
-          Choose one of your previously uploaded settings to train a logistic regression
-         and run a round-by-round Monte Carlo simulation of your league's draft.
-        `}
+          Choose one of your{" "}
+          <Link className={"text-lg lg:text-xl"} href="/setup">
+            previously configured settings
+          </Link>{" "}
+          to train a logistic regression and run a round-by-round Monte Carlo
+          simulation of your {`league's`} draft.
         </h2>
       </div>
 

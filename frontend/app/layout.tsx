@@ -82,7 +82,6 @@ export default function RootLayout({
                   isExternal
                   className="text-primary"
                   href="https://nextui-docs-v2.vercel.app?utm_source=next-app-template"
-                  title="nextui.org homepage"
                 >
                   NextUI
                 </Link>{" "}
@@ -91,7 +90,6 @@ export default function RootLayout({
                   isExternal
                   className="text-primary"
                   href="https://art049.github.io/odmantic/"
-                  title="odmantic homepage"
                 >
                   ODMantic
                 </Link>
