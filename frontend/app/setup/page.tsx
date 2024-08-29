@@ -1,14 +1,22 @@
 "use client";
 
-import { createContext, useState } from "react";
+import { createContext, useCallback, useEffect, useState } from "react";
 import { Button } from "@nextui-org/button";
 import { Code } from "@nextui-org/code";
 import { Input } from "@nextui-org/input";
 import { Link } from "@nextui-org/link";
 import { Progress } from "@nextui-org/progress";
+import { Spinner } from "@nextui-org/spinner";
 import { useTheme } from "next-themes";
 
+import {
+  useCreateLeagueMutation,
+  useAddHistoricalDraftsMutation,
+  useAddHistoricalPlayersMutation,
+  useAddPlayersMutation,
+} from "@/api/services/league";
 import { title, subtitle } from "@/components/primitives";
+import { LeagueSimple } from "@/types";
 
 interface SetupContextType {
   theme: string | undefined;
@@ -34,6 +42,12 @@ export default function SetupPage() {
   const { theme } = useTheme();
   const [progressStep, setProgressStep] = useState<number>(0);
   const [isValidationError, setIsValidationError] = useState<boolean>(false);
+
+  // Mutations for creating a new league
+  const [createLeague] = useCreateLeagueMutation();
+  const [addHistoricalDrafts] = useAddHistoricalDraftsMutation();
+  const [addHistoricalPlayers] = useAddHistoricalPlayersMutation();
+  const [addPlayers] = useAddPlayersMutation();
 
   // State to store the inputted name and files
   const [leagueName, setLeagueName] = useState<string | null>(null);
@@ -64,15 +78,53 @@ export default function SetupPage() {
   };
 
   // Handle next button click
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (validateStep()) {
       setProgressStep(progressStep + 1);
       setIsValidationError(false);
     } else {
       setIsValidationError(true);
     }
-  };
+  }, [progressStep, validateStep]);
 
+  // Async leauge creation
+  const handleCreateLeague = useCallback(async () => {
+    const newLeague: LeagueSimple = await createLeague({
+      name: leagueName as string,
+      teams: teamsFile as File,
+    }).unwrap();
+
+    // If the new league was not created, return
+
+    await addHistoricalDrafts({
+      id: newLeague.id,
+      drafts: historicalDraftFile as File,
+    });
+    await addHistoricalPlayers({
+      id: newLeague.id,
+      players: historicalPlayersFile as File,
+    });
+    await addPlayers({
+      id: newLeague.id,
+      players: playersFile as File,
+    });
+  }, [
+    createLeague,
+    leagueName,
+    teamsFile,
+    historicalDraftFile,
+    historicalPlayersFile,
+    playersFile,
+  ]);
+
+  // When on the last step, create the league
+  useEffect(() => {
+    if (progressStep === 5) {
+      handleCreateLeague();
+    }
+  }, [progressStep, handleCreateLeague]);
+
+  // Return the form
   return (
     <section className="flex flex-col items-center justify-center gap-8">
       <div className="max-w-lg text-center">
@@ -101,7 +153,14 @@ export default function SetupPage() {
         {/* Progress */}
         <Progress
           label={
-            progressStep < 5 ? `Step ${progressStep + 1} of 5` : "Creating..."
+            progressStep < 5 ? (
+              `Step ${progressStep + 1} of 5`
+            ) : (
+              <span className="flex items-center">
+                <Spinner size="sm" />
+                <span className="ml-2">Creating</span>
+              </span>
+            )
           }
           size="lg"
           value={progressStep * 20}

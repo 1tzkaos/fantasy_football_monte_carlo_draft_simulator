@@ -3,6 +3,7 @@
 MONTE CARLO FANTASY FOOTBALL DRAFT SIMULATOR BACKEND
 """
 import csv
+from datetime import datetime
 from fastapi import FastAPI, File, HTTPException, Response, UploadFile
 from odmantic import AIOEngine, ObjectId
 import random
@@ -222,17 +223,21 @@ async def create_league(
                 simulator=row["Simulator"] == "True" or row["Simulator"] == 1,
             )
         )
-    league = League(teams=teams, snake_draft=SNAKE_DRAFT, name=name)
+    league = League(
+        teams=teams, snake_draft=SNAKE_DRAFT, name=name, created=datetime.now()
+    )
     await engine.save(league)
     return league
 
 
 @app.get("/league", response_model=List[LeagueSimple], tags=["league"])
-async def get_leagues():
+async def get_leagues(ready_for_draft: bool = True):
     """
-    Get all leagues
+    Get all leagues (default to only leagues that are ready for a draft)
     """
     leagues = await engine.find(League)
+    if ready_for_draft:
+        leagues = [league for league in leagues if league.ready_for_draft]
     return leagues
 
 
