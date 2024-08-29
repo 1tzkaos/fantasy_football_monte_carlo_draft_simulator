@@ -4,7 +4,7 @@ export type IconSvgProps = SVGProps<SVGSVGElement> & {
   size?: number;
 };
 
-export type DraftSettings = {
+export type LeagueSimple = {
   id: string;
   name: string;
   created: string;

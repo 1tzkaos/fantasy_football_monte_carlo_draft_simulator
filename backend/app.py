@@ -8,9 +8,10 @@ from odmantic import AIOEngine, ObjectId
 import random
 from sklearn.base import RegressorMixin
 from sklearn.linear_model import LogisticRegression
+from starlette.middleware.cors import CORSMiddleware
 from typing import List
 
-from models.config import DRAFT_YEAR, ROUND_SIZE, SNAKE_DRAFT
+from models.config import DRAFT_YEAR, SNAKE_DRAFT
 from models.player import Player, Players, PlayerPoints
 from models.position import PositionMaxPoints, PositionTierDistributions
 from models.team import (
@@ -27,9 +28,12 @@ from models.team import (
 tags_metadata = [
     {
         "name": "league",
-        "description": "Leagues are the centralized setting, containing teams and players.",
+        "description": "Leagues are the centralized setting and must be initialized with a list of teams.",
     },
-    {"name": "player", "description": "Draftable players in a league."},
+    {
+        "name": "player",
+        "description": "Draftable players in a league, with projections of their performance this season.",
+    },
     {
         "name": "historical_player",
         "description": "Historical players in a league, which determine position tier distributions.",
@@ -51,6 +55,21 @@ app = FastAPI(
 )
 engine = AIOEngine(
     database="fantasy-football",
+)
+
+
+# Include origins for CORS
+origins = [
+    "http://localhost",
+    "http://localhost:3000",
+    "http://127.0.0.1",
+    "http://127.0.0.1:3000",
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -463,28 +482,28 @@ async def get_drafts():
 
 @app.post("/draft/{draft_id}/pick", response_model=Draft, tags=["draft"])
 async def make_draft_pick(
-    draft_id: ObjectId, pick: str = "", use_simulator: bool = False
+    draft_id: ObjectId, name: str = "", use_simulator: bool = False
 ):
     """
-    Make a draft pick
+    Make a draft pick by name or using the simulator
     """
     draft = await get_a_draft_by_id(draft_id)
-    if pick and use_simulator:
+    if name and use_simulator:
         raise HTTPException(
-            status_code=400, detail="Cannot include a pick and use the simulator"
+            status_code=400, detail="Cannot include a name and use the simulator"
         )
-    if not pick and not use_simulator:
+    if not name and not use_simulator:
         raise HTTPException(
-            status_code=400, detail="Must include a pick or use the simulator"
+            status_code=400, detail="Must include a name or use the simulator"
         )
 
     # If using the simulator, get a pick name
     if use_simulator:
-        pick = simulate_pick(draft.league)
+        name = simulate_pick(draft.league)
 
     # Find the player picked by name
     players = draft.league.players.players
-    player = [player for player in players if player.name == pick]
+    player = [player for player in players if player.name == name]
     if not player:
         raise HTTPException(status_code=404, detail="Player not found")
     else:
