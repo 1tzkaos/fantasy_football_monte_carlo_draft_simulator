@@ -21,6 +21,9 @@ import { LeagueSimple } from "@/types";
 interface SetupContextType {
   theme: string | undefined;
   progressStep: number;
+  isValidationError: boolean;
+  isCreationError: boolean;
+  isCreated: boolean;
   setLeagueName: (name: string) => void;
   setTeamsFile: (file: File) => void;
   setHistoricalDraftFile: (file: File) => void;
@@ -31,6 +34,9 @@ interface SetupContextType {
 const SetupContext = createContext<SetupContextType>({
   theme: undefined,
   progressStep: 0,
+  isValidationError: false,
+  isCreationError: false,
+  isCreated: false,
   setLeagueName: () => {},
   setTeamsFile: () => {},
   setHistoricalDraftFile: () => {},
@@ -42,6 +48,8 @@ export default function SetupPage() {
   const { theme } = useTheme();
   const [progressStep, setProgressStep] = useState<number>(0);
   const [isValidationError, setIsValidationError] = useState<boolean>(false);
+  const [isCreationError, setIsCreationError] = useState<boolean>(false);
+  const [isCreated, setIsCreated] = useState<boolean>(false);
 
   // Mutations for creating a new league
   const [createLeague] = useCreateLeagueMutation();
@@ -92,22 +100,33 @@ export default function SetupPage() {
     const newLeague: LeagueSimple = await createLeague({
       name: leagueName as string,
       teams: teamsFile as File,
-    }).unwrap();
+    })
+      .unwrap()
+      .catch(() => {
+        setIsCreationError(true);
 
-    // If the new league was not created, return
+        return {} as LeagueSimple;
+      });
 
     await addHistoricalDrafts({
       id: newLeague.id,
       drafts: historicalDraftFile as File,
+    }).catch(() => {
+      setIsCreationError(true);
     });
     await addHistoricalPlayers({
       id: newLeague.id,
       players: historicalPlayersFile as File,
+    }).catch(() => {
+      setIsCreationError(true);
     });
     await addPlayers({
       id: newLeague.id,
       players: playersFile as File,
+    }).catch(() => {
+      setIsCreationError(true);
     });
+    setIsCreated(true);
   }, [
     createLeague,
     leagueName,
@@ -143,6 +162,9 @@ export default function SetupPage() {
         value={{
           theme,
           progressStep,
+          isValidationError,
+          isCreationError,
+          isCreated,
           setLeagueName,
           setTeamsFile,
           setHistoricalDraftFile,
@@ -150,10 +172,15 @@ export default function SetupPage() {
           setHistoricalPlayersFile,
         }}
       >
-        {/* Progress */}
+        {/* Progress bar with color and text for status updates */}
         <Progress
+          color={isCreationError ? "danger" : "primary"}
           label={
-            progressStep < 5 ? (
+            isCreationError ? (
+              "Error"
+            ) : isCreated ? (
+              "Success"
+            ) : progressStep < 5 ? (
               `Step ${progressStep + 1} of 5`
             ) : (
               <span className="flex items-center">
@@ -201,7 +228,7 @@ export default function SetupPage() {
             <p className="text-left">
               This CSV file lists the teams in your league and their draft
               order. To see a template of this file, please{" "}
-              <Link href="/league_teams.csv">click here</Link>.
+              <Link href="/teams.csv">click here</Link>.
             </p>
           </div>
         )}
@@ -210,8 +237,8 @@ export default function SetupPage() {
         {progressStep === 2 && (
           <div className="flex flex-col gap-4 w-full items-center">
             <Input
-              id="historical-draft-csv"
-              label="Historical Draft CSV"
+              id="historical-drafts-csv"
+              label="Historical Drafts CSV"
               size="lg"
               type="file"
               variant={theme === "light" ? "faded" : "flat"}
@@ -247,7 +274,7 @@ export default function SetupPage() {
             <p className="text-left">
               This CSV file lists current players and their projected fantasy
               football points. To see a template of this file, please{" "}
-              <Link href="/draft_projections.csv">click here</Link>.
+              <Link href="/players.csv">click here</Link>.
             </p>
           </div>
         )}
@@ -271,10 +298,24 @@ export default function SetupPage() {
               This CSV file compares {`players'`} projected and actual fantasy
               football points in previous seasons. To see a template of this
               file, please{" "}
-              <Link href="/historical_projections.csv">click here</Link>.
+              <Link href="/historical_players.csv">click here</Link>.
             </p>
           </div>
         )}
+
+        {/* Creation errors require the user to restart the process */}
+        {isCreationError ? (
+          <Code color="danger">
+            There was an error creating your league. Please try again.
+          </Code>
+        ) : isCreated ? (
+          <>
+            <Code color="primary">Your league has been created!</Code>
+            <p className="text-left">
+              Next step? Visit the <Link href="/draft">draft page</Link>.
+            </p>
+          </>
+        ) : null}
 
         {/* Next step button */}
         {progressStep < 5 && (

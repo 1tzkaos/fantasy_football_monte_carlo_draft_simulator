@@ -128,12 +128,17 @@ class Players(EmbeddedModel):
     k: List[Player] = []
     players: List[Player] = []
     years: List[str] = []
+    ready_players: bool = False
 
     @model_validator(mode="before")
     def assign_players_to_positions(cls, data):
         """
         Assign the player to the correct position and position tiers
         """
+        if "ready_players" in data and data["ready_players"]:
+            return data
+
+        # Ensure all players are Player objects
         positions = ["qb", "rb", "wr", "te", "dst", "k"]
         positions_and_players = positions + ["players"]
         for key in positions_and_players:
@@ -185,4 +190,5 @@ class Players(EmbeddedModel):
                                 player.position_tier = f"{position_tier}3"
 
         # Return the data
+        data["ready_players"] = True
         return data

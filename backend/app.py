@@ -268,7 +268,7 @@ async def create_draft_for_a_league(league_id: ObjectId):
     league = await get_a_league_by_id(league_id)
     if not league.ready_for_draft:
         raise HTTPException(status_code=400, detail="League is not ready for a draft")
-    draft = Draft(league=league)
+    draft = Draft(league=league, created=datetime.now())
     await engine.save(draft)
     return draft
 
@@ -282,6 +282,12 @@ async def add_players_to_league(
     Add current, draftable players to a league
     """
     league = await get_a_league_by_id(league_id)
+    if league.players.players:
+        raise HTTPException(
+            status_code=400, detail="Players already exist for this league"
+        )
+
+    # Read the CSV file and create players
     data = csv.DictReader((await file.read()).decode("utf-8-sig").splitlines())
     players = []
     for row in data:
@@ -362,6 +368,12 @@ async def add_historical_player_data_to_league(
     Add historical players to a league to determine position tier distributions
     """
     league = await get_a_league_by_id(league_id)
+    if league.ready_position_tier_distributions:
+        raise HTTPException(
+            status_code=400, detail="Historical players already exist for this league"
+        )
+
+    # Read the CSV file and create players
     data = csv.DictReader((await file.read()).decode("utf-8-sig").splitlines())
     players = []
     for row in data:
@@ -426,6 +438,16 @@ async def add_historical_draft_data_to_league(
     Add historical draft data to a league to train the logistic regression model
     """
     league = await get_a_league_by_id(league_id)
+    if (
+        league.logistic_regression_variables.x
+        and league.logistic_regression_variables.y
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail="Historical draft data already exists for this league",
+        )
+
+    # Read the CSV file and create logistic regression variables
     data = csv.DictReader((await file.read()).decode("utf-8-sig").splitlines())
     x = []
     y = []
@@ -493,6 +515,7 @@ async def make_draft_pick(
     Make a draft pick by name or using the simulator
     """
     draft = await get_a_draft_by_id(draft_id)
+    league = draft.league
     if name and use_simulator:
         raise HTTPException(
             status_code=400, detail="Cannot include a name and use the simulator"
@@ -513,6 +536,29 @@ async def make_draft_pick(
         raise HTTPException(status_code=404, detail="Player not found")
     else:
         player = player[0]
+
+    # Set the player as drafted within the league too
+    position = player.position.lower()
+    for k in ["players", position]:
+        if hasattr(league.players, k):
+            position_players = getattr(league.players, k)
+            # Find the player in the list by name
+            player_index = next(
+                (
+                    index
+                    for index, player in enumerate(position_players)
+                    if player.name == name
+                ),
+                None,
+            )
+            position_players[player_index].drafted = True
+
+    # Draft the player
+    player.drafted = True
+    league.add_player_to_current_draft_turn_team(player)
+
+    # Save the draft
+    await engine.save(draft)
 
     # Return the draft after all operations have been performed
     return draft

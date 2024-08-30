@@ -38,7 +38,7 @@ def fill_starters(roster):
             # Sort by projected points and take the top players
             output[position] = sorted(
                 players,
-                key=lambda x: x["points"][DRAFT_YEAR]["projected_points"],
+                key=lambda x: x["points"][str(DRAFT_YEAR)]["projected_points"],
                 reverse=True,
             )[:size]
 
@@ -53,7 +53,7 @@ def fill_starters(roster):
     ]
     output["flex"] = sorted(
         flex_players,
-        key=lambda x: x["points"][DRAFT_YEAR]["projected_points"],
+        key=lambda x: x["points"][str(DRAFT_YEAR)]["projected_points"],
         reverse=True,
     )[: ps.flex]
 
@@ -219,7 +219,7 @@ class LeagueSimple(BaseModel):
     """
 
     created: datetime.datetime = datetime.datetime.now()
-    name: str = "Fantasy Football League"
+    name: str = ""
     ready_for_draft: bool
     id: ObjectId
 
@@ -230,7 +230,7 @@ class League(Model):
     """
 
     created: datetime.datetime = datetime.datetime.now()
-    name: str = "Fantasy Football League"
+    name: str = ""
     ready_for_draft: bool = False
     teams: List[Team]
     snake_draft: bool = SNAKE_DRAFT

@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 import { baseQuery } from "@/api/services/base";
-import { LeagueSimple } from "@/types";
+import { DraftSimple, LeagueSimple } from "@/types";
 
 // Url for all league operations
 const leagueUrl = "/league";
@@ -16,9 +16,17 @@ export const leagueApi = createApi({
       query: () => leagueUrl,
     }),
 
+    // To create a draft for a league, we need to send a POST request to
+    // '/league/:id/draft'
+    createDraft: builder.mutation<DraftSimple, { id: string }>({
+      query: ({ id }) => ({
+        url: `${leagueUrl}/${id}/draft`,
+        method: "POST",
+      }),
+    }),
+
     // To create a league, we need to send a POST request to '/league'
-    // with the league name in the query paramter and the teams file
-    // in the body of the request
+    // with all of the teams data, which is required
     createLeague: builder.mutation<LeagueSimple, { name: string; teams: File }>(
       {
         query: ({ name, teams }) => {
@@ -103,6 +111,7 @@ export const leagueApi = createApi({
 
 export const {
   useGetLeaguesQuery,
+  useCreateDraftMutation,
   useCreateLeagueMutation,
   useAddPlayersMutation,
   useAddHistoricalDraftsMutation,

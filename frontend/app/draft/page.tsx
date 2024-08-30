@@ -2,10 +2,15 @@
 
 import { createContext } from "react";
 import { button as buttonStyles } from "@nextui-org/theme";
+import { Button } from "@nextui-org/button";
+import { Code } from "@nextui-org/code";
 import { Link } from "@nextui-org/link";
 import clsx from "clsx";
 
-import { useGetLeaguesQuery } from "@/api/services/league";
+import {
+  useCreateDraftMutation,
+  useGetLeaguesQuery,
+} from "@/api/services/league";
 import { fontMono } from "@/config/fonts";
 import { PlayIcon } from "@/components/icons";
 import { title, subtitle } from "@/components/primitives";
@@ -13,14 +18,24 @@ import { LeagueSimple } from "@/types";
 
 interface DraftContextType {
   leagues: LeagueSimple[];
+  handleCreateDraft: (id: string) => void;
 }
 
 const DraftContext = createContext<DraftContextType>({
   leagues: [],
+  handleCreateDraft: () => {},
 });
 
 export default function DraftPage() {
   const { data: leagues = [] } = useGetLeaguesQuery("");
+  const [createDraft] = useCreateDraftMutation();
+
+  // Create a draft for the selected league and navigate to that page when successful
+  const handleCreateDraft = async (id: string) => {
+    const newDraft = await createDraft({ id }).unwrap();
+
+    window.location.href = `/draft-room/${newDraft.id}`;
+  };
 
   return (
     <section className="flex flex-col items-center justify-center gap-8">
@@ -38,9 +53,9 @@ export default function DraftPage() {
 
       {/* Iterate through the available settings and display them as a clickable btn */}
       <div className="flex flex-col gap-4 w-full items-center">
-        <DraftContext.Provider value={{ leagues }}>
+        <DraftContext.Provider value={{ leagues, handleCreateDraft }}>
           {leagues.map((league) => (
-            <Link
+            <Button
               key={league.id}
               className={
                 buttonStyles({
@@ -49,7 +64,7 @@ export default function DraftPage() {
                 }) +
                 " flex flex-row gap-1 p-12 justify-start items-center w-11/12"
               }
-              href={`/draft/${league.id}`}
+              onClick={() => handleCreateDraft(league.id)}
             >
               <div className="w-3/4 md:w-fit text-left">
                 <p className="text-xl text-wrap">{league.name}</p>
@@ -60,8 +75,13 @@ export default function DraftPage() {
               <div className="w-1/4 md:flex-grow flex justify-end items-center text-primary">
                 <PlayIcon />
               </div>
-            </Link>
+            </Button>
           ))}
+
+          {/* If there are no drafts, give an error that there are none available */}
+          {leagues.length === 0 && (
+            <Code color="danger">No draft settings found.</Code>
+          )}
         </DraftContext.Provider>
       </div>
     </section>

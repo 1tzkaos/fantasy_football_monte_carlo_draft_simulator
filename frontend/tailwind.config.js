@@ -22,11 +22,15 @@ module.exports = {
         dark: {
           colors: {
             primary: "#17c964",
+            success: "#006FEE",
+            warning: "#c4841d",
           },
         },
         light: {
           colors: {
             primary: "#17c964",
+            success: "#006FEE",
+            warning: "#c4841d",
           },
         },
       },
