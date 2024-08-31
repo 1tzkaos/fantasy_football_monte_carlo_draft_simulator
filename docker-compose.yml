@@ -9,6 +9,26 @@ services:
       - 27017:27017
     volumes:
       - mongodb_data:/data/db
+  nextjs-app:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: nextjs-app
+    restart: always
+    ports:
+      - 3000:3000
+  fastapi-backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fastapi-backend
+    restart: always
+    ports:
+      - 8000:8000
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - mongodb
 
 volumes:
   mongodb_data:

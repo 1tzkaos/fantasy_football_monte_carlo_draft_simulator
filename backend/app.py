@@ -5,6 +5,7 @@ MONTE CARLO FANTASY FOOTBALL DRAFT SIMULATOR BACKEND
 import csv
 from datetime import datetime
 from fastapi import FastAPI, File, HTTPException, Response, UploadFile
+from motor.motor_asyncio import AsyncIOMotorClient
 from odmantic import AIOEngine, ObjectId
 import random
 from sklearn.base import RegressorMixin
@@ -13,7 +14,7 @@ from starlette.middleware.cors import CORSMiddleware
 import time
 from typing import List
 
-from models.config import DRAFT_YEAR, ROUND_SIZE, SNAKE_DRAFT
+from models.config import DRAFT_YEAR, LOCAL, ROUND_SIZE, SNAKE_DRAFT
 from models.player import Player, Players, PlayerPoints
 from models.position import PositionMaxPoints, PositionTierDistributions
 from models.team import (
@@ -53,11 +54,18 @@ tags_metadata = [
 
 
 # Initialize app and engine
+if LOCAL:
+    print("Running locally")
+    client = AsyncIOMotorClient("mongodb://localhost:27017")
+else:
+    print("Running in Docker")
+    client = AsyncIOMotorClient("mongodb://mongodb:27017")
 app = FastAPI(
     title="FF Monte Carlo Draft Simulator", version="0.0.1", openapi_tags=tags_metadata
 )
 engine = AIOEngine(
     database="fantasy-football",
+    client=client,
 )
 
 

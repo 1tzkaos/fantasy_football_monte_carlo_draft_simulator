@@ -8,6 +8,9 @@ import os
 
 load_dotenv()
 
+# Indicate whether the app is running locally or in Docker
+LOCAL = os.getenv("LOCAL", "true").lower() == "true"
+
 # Roster and position sizes
 ROSTER_SIZE = int(os.getenv("ROSTER_SIZE", 14))
 QB_SIZE = int(os.getenv("QB_SIZE", 1))

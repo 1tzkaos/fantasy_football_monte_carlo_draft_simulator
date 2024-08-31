@@ -16,17 +16,19 @@ This program is my attempt to solve both of those problems. To better estimate w
 
 To run the simulator without any edits to its code, you must have Docker installed on your machine.
 
-Fork this repository, and then run:
+Fork this repository, and run:
 
 ```console
-docker-compose up
+docker-compose up -d
 ```
+
+The frontend of the application will then be viewable on `localhost:3000`.
 
 To correctly return results for your league, you'll need to tune the variables in `backend/models/config.py` to your league's settings and create a couple of CSV files:
 
 ### Players File
 
-This file includes player names, positions, and projected points for the current draft season from any resource you choose, like [The Athletic](https://www.nytimes.com/athletic/5475262/2024/05/29/2024-fantasy-football-cheat-sheet-generator-customizable-rankings-and-projections-tool/). The projected points should align with your league's scoring rules.
+This file includes player names, positions, and projected points for the current NFL season from any resource you choose, like [The Athletic](https://www.nytimes.com/athletic/5475262/2024/05/29/2024-fantasy-football-cheat-sheet-generator-customizable-rankings-and-projections-tool/). The projected points should align with your league's scoring rules.
 
 The following columns are required:
 
@@ -60,7 +62,7 @@ The following columns are required:
 
 ### Teams
 
-This file provides the details for your league. Other information, like whether the simulation should replicate a snake draft, should be contained within the `.env` file, which is read by `backend/models/config.py`.
+This file provides the details for each team in your league. Other information, like whether the simulation should replicate a snake draft, should be contained within the `.env` file, which is read by `backend/models/config.py`.
 
 The following columns are required:
 
