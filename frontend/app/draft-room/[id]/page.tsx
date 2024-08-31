@@ -219,10 +219,12 @@ export default function DraftIdPage({ params }: { params: { id: string } }) {
         <div className="flex space-between gap-8 w-full">
           <Input
             fullWidth
+            isClearable
             placeholder="Filter"
             size="lg"
             variant="bordered"
             onChange={(e) => setSearchFilter(e.target.value)}
+            onClear={() => setSearchFilter("")}
           />
         </div>
 
