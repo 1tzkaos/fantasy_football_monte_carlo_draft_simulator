@@ -229,9 +229,12 @@ export default function DraftIdPage({ params }: { params: { id: string } }) {
         </div>
 
         {/* Use a flex box to display columns of the six positions */}
-        <div className="text-center grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+        <div className="text-center grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 w-full">
           {positions.map((position) => (
-            <div key={position} className="flex flex-col items-center gap-4">
+            <div
+              key={position}
+              className="col-span-1 flex flex-col items-center gap-4"
+            >
               <h3 className="text-lg font-bold mt-0 w-full">
                 {position.toLocaleUpperCase()}
               </h3>
