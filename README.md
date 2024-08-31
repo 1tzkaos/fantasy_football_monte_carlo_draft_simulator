@@ -6,6 +6,8 @@
 [![Python](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3120/)
 [![Pydantic v2](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/pydantic/pydantic/5697b1e4c4a9790ece607654e6c02a160620c7e1/docs/badge/v2.json)](https://pydantic.dev)
 
+![image](https://github.com/user-attachments/assets/ea7f2a26-46d9-45c6-bd41-2fe6761d8e82)
+
 ## How Does The Simulator Work?
 
 In previous fantasy football drafts, I have struggled to pick the right players. At the start, I selected players whose point projections are not dramatically different than the projections of players who are still available in later rounds. At the end, I failed to draft backups for players who are at the most risk of injury.
@@ -75,7 +77,15 @@ Technically, more than one team may be the simulator – or be owned by the user
 
 ## Screenshots
 
-The following screenshots are samples from the NextUI frontend.
+The following screenshots are samples from the NextUI frontend, which automatically includes both `dark` and `light` themes that require very little customization.
+
+### Dark Theme
+
+![image](https://github.com/user-attachments/assets/600ab879-de0b-470e-bfad-8c6098e25a65)
+
+### Light Theme
+
+![image](https://github.com/user-attachments/assets/c1be0c54-2667-4d4d-8c45-12cb883cd16c)
 
 ## Contributing
 
