@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-PYDANTIC MODELS FOR POSITIONS
+ODMANTIC MODELS FOR POSITIONS
 """
 from .config import (
     DST_SIZE,
@@ -12,11 +12,11 @@ from .config import (
     TE_SIZE,
     WR_SIZE,
 )
-from pydantic import BaseModel
+from odmantic import EmbeddedModel, Model
 from typing import List
 
 
-class PositionSizes(BaseModel):
+class PositionSizes(Model):
     """
     The number of players that can be starters for each position,
     which defaults to environment variables
@@ -31,7 +31,7 @@ class PositionSizes(BaseModel):
     k: int = K_SIZE
 
 
-class PositionTierDistributions(BaseModel):
+class PositionTierDistributions(EmbeddedModel):
     """
     Distributions for the generation of random point projections
     for each position by tier (3 tiers for qb, rb, wr, te)
@@ -51,7 +51,7 @@ class PositionTierDistributions(BaseModel):
     te3: List[float] = []
 
 
-class PositionMaxPoints(BaseModel):
+class PositionMaxPoints(EmbeddedModel):
     """
     Maximum number of projected points for each position, which
     if not set, allows the random projection to be (maybe unrealistically) extreme
@@ -65,7 +65,7 @@ class PositionMaxPoints(BaseModel):
     k: float = 0
 
 
-class PositionTiers(BaseModel):
+class PositionTiers(Model):
     """
     The index of the last player (when sorted by projected points)
     for each position tier, which are by default based on a

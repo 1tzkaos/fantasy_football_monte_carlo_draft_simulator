@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-PYDANTIC MODELS FOR PLAYERS
+ODMANTIC MODELS FOR PLAYERS
 """
 from .config import DRAFT_YEAR, MAX_RANDOM_ADJUSTMENT
 from .position import PositionMaxPoints, PositionTierDistributions, PositionTiers
-from pydantic import BaseModel, field_validator, model_validator
+from odmantic import EmbeddedModel, Model
+from pydantic import field_validator, model_validator
 import random
 from typing import Dict, List, Union
 
@@ -12,7 +13,7 @@ from typing import Dict, List, Union
 pt = PositionTiers()
 
 
-class PlayerPoints(BaseModel):
+class PlayerPoints(EmbeddedModel):
     """
     Projected vs. actual points for a single player,
     which must be calculated separately and placed on a CSV loaded on main.py
@@ -22,7 +23,7 @@ class PlayerPoints(BaseModel):
     actual_points: Union[float, None] = None  # Will be none for current draft year
 
 
-class PlayerPointsRandomized(BaseModel):
+class PlayerPointsRandomized(Model):
     """
     Information about a random projection of points for a player,
     including the total adjustment to the original projection
@@ -42,7 +43,7 @@ class PlayerPointsRandomized(BaseModel):
         return round(value, 2)
 
 
-class Player(BaseModel):
+class Player(EmbeddedModel):
     """
     Store all player information, with an added method for
     returning a randomized point projection, based on historical distributions
@@ -51,10 +52,10 @@ class Player(BaseModel):
     name: str
     position: str
     position_tier: str = (
-        None  # DST & K do not have meaningful tiers, because they're very streamable
+        ""  # DST & K do not have meaningful tiers, because they're very streamable
     )
     nfl_team: str  # Abbreviation, for current draft year
-    points: Dict[int, PlayerPoints]  # Key is the year of the points
+    points: Dict[str, PlayerPoints]  # Key is the year of the points
     drafted: bool = False
 
     @field_validator("position", "position_tier")
@@ -65,17 +66,23 @@ class Player(BaseModel):
         """
         return value.lower()
 
+    def draft_player(self):
+        """
+        Update the player's draft status to true (drafted)
+        """
+        self.drafted = True
+
     def randomized_points(
         self,
         distributions: PositionTierDistributions = PositionTierDistributions(),
         max_points: PositionMaxPoints = PositionMaxPoints(),
         max_points_adjustment: float = MAX_RANDOM_ADJUSTMENT,
-        year: int = DRAFT_YEAR,
+        year: str = str(DRAFT_YEAR),
     ) -> PlayerPointsRandomized:
         """
         Return a random point projection for the player, if a distribution exists
         """
-        output = {"projected_points": self.points[year].projected_points}
+        output = {"projected_points": self.points[str(year)].projected_points}
 
         # If the tier distribution is not available (DST & K), return the projected points
         tier_distribution = distributions.model_dump().get(self.position_tier, None)
@@ -86,7 +93,7 @@ class Player(BaseModel):
         else:
             output["adjustment"] = random.choice(tier_distribution)
             output["randomized_points"] = round(
-                self.points[year].projected_points * (1.0 + output["adjustment"])
+                self.points[str(year)].projected_points * (1.0 + output["adjustment"])
             )
 
             # If the adjustment exceeds the max points, return the max points
@@ -107,7 +114,7 @@ class Player(BaseModel):
         return PlayerPointsRandomized(**output)
 
 
-class Players(BaseModel):
+class Players(EmbeddedModel):
     """
     Segment players into lists by position, and assign position tiers
     which are helpful for simulating randomness in draft outcomes
@@ -120,13 +127,28 @@ class Players(BaseModel):
     dst: List[Player] = []
     k: List[Player] = []
     players: List[Player] = []
-    years: List[int] = []
+    years: List[str] = []
+    ready_players: bool = False
 
     @model_validator(mode="before")
     def assign_players_to_positions(cls, data):
         """
         Assign the player to the correct position and position tiers
         """
+        if "ready_players" in data and data["ready_players"]:
+            return data
+
+        # Ensure all players are Player objects
+        positions = ["qb", "rb", "wr", "te", "dst", "k"]
+        positions_and_players = positions + ["players"]
+        for key in positions_and_players:
+            if key in data and not all(
+                [isinstance(player, Player) for player in data[key]]
+            ):
+                data[key] = [Player(**player) for player in data[key]]
+
+        # Get the years that the players have on record
+        data["years"] = []
         if "players" in data:
             years = set()
             for player in data["players"]:
@@ -139,7 +161,6 @@ class Players(BaseModel):
 
         # For each position, order the players by projected points
         # if the list is for the current draft
-        positions = ["qb", "rb", "wr", "te", "dst", "k"]
         for year in data["years"]:
             for position_order in positions:
                 if position_order in data:
@@ -169,4 +190,5 @@ class Players(BaseModel):
                                 player.position_tier = f"{position_tier}3"
 
         # Return the data
+        data["ready_players"] = True
         return data

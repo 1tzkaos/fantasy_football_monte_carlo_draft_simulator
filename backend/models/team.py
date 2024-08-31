@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-PYDANTIC MODELS FOR TEAMS
+ODMANTIC MODELS FOR TEAMS
 """
-from annotated_types import Len
-from .config import DRAFT_YEAR, ROSTER_SIZE, ROUND_SIZE, SNAKE_DRAFT, STARTERS_SIZE
+from .config import DRAFT_YEAR, ROUND_SIZE, SNAKE_DRAFT
 import copy
-from .player import Player
+import datetime
+from .player import Player, Players
 from .position import PositionMaxPoints, PositionSizes, PositionTierDistributions
+from odmantic import EmbeddedModel, Model, ObjectId, Reference
 from pydantic import BaseModel, ConfigDict, model_validator
 from sklearn.base import RegressorMixin
-from typing import Annotated, List
+from typing import List
 
 
 # Load the position sizes, determined by environment variables
@@ -37,7 +38,7 @@ def fill_starters(roster):
             # Sort by projected points and take the top players
             output[position] = sorted(
                 players,
-                key=lambda x: x["points"][DRAFT_YEAR]["projected_points"],
+                key=lambda x: x["points"][str(DRAFT_YEAR)]["projected_points"],
                 reverse=True,
             )[:size]
 
@@ -52,7 +53,7 @@ def fill_starters(roster):
     ]
     output["flex"] = sorted(
         flex_players,
-        key=lambda x: x["points"][DRAFT_YEAR]["projected_points"],
+        key=lambda x: x["points"][str(DRAFT_YEAR)]["projected_points"],
         reverse=True,
     )[: ps.flex]
 
@@ -72,7 +73,7 @@ MODELS
 """
 
 
-class Team(BaseModel):
+class Team(EmbeddedModel):
     """
     A fantasy football team with a name, owner, and roster of players,
     which updates its starters with the best players when they are added
@@ -80,8 +81,8 @@ class Team(BaseModel):
     """
 
     model_config = ConfigDict(
-        validate_assignment=True
-    )  # Enable validation on assignment, so that starters are updated
+        arbitrary_types_allowed=True,
+    )
 
     # Team information, including whether or not this team is the "simulator's"
     name: str
@@ -90,17 +91,17 @@ class Team(BaseModel):
     draft_order: int
 
     # Roster is a list of players, while starters are the best for a position
-    roster: Annotated[List[Player], Len(max_length=ROSTER_SIZE)] = []
-    starters: Annotated[List[Player], Len(max_length=STARTERS_SIZE)] = []
+    roster: List[Player] = []
+    starters: List[Player] = []
 
     # Starting positions
-    qb: Annotated[List[Player], Len(max_length=ps.qb)] = []
-    rb: Annotated[List[Player], Len(max_length=ps.rb)] = []
-    wr: Annotated[List[Player], Len(max_length=ps.wr)] = []
-    te: Annotated[List[Player], Len(max_length=ps.te)] = []
-    flex: Annotated[List[Player], Len(max_length=ps.flex)] = []
-    dst: Annotated[List[Player], Len(max_length=ps.dst)] = []
-    k: Annotated[List[Player], Len(max_length=ps.k)] = []
+    qb: List[Player] = []
+    rb: List[Player] = []
+    wr: List[Player] = []
+    te: List[Player] = []
+    flex: List[Player] = []
+    dst: List[Player] = []
+    k: List[Player] = []
 
     @model_validator(mode="before")
     def autofill_starters(cls, data):
@@ -194,31 +195,88 @@ class Team(BaseModel):
         using the draft year as the default year
         """
         roster_copy = copy.deepcopy(self.roster)
-        for player in roster_copy:
-            player.points[year].projected_points = player.randomized_points(
-                distributions=distributions, max_points=max_points, year=year
-            ).randomized_points
+        for i, player in enumerate(roster_copy):
+            player_data = player.model_dump()
+            player_data["points"][str(year)]["projected_points"] = (
+                player.randomized_points(
+                    distributions=distributions, max_points=max_points, year=year
+                ).randomized_points
+            )
+            new_player = Player(**player_data)
+            roster_copy[i] = new_player
         starters = fill_starters([x.model_dump() for x in roster_copy])["starters"]
-        return sum([player["points"][year]["projected_points"] for player in starters])
+        return sum(
+            [player["points"][str(year)]["projected_points"] for player in starters]
+        )
 
 
-class League(BaseModel):
+class LogisticRegressionVariables(EmbeddedModel):
+    """
+    Variables for the logistic regression model, which are stored in the league
+    """
+
+    x: List[int] = []
+    y: List[str] = []
+
+
+class LeagueSimple(BaseModel):
+    """
+    Just the basic information about a league, as a Pydantic model,
+    to return to the user in the API, not model in the database
+    """
+
+    created: datetime.datetime = datetime.datetime.now()
+    name: str = ""
+    ready_for_draft: bool
+    copy_for_draft: bool
+    id: ObjectId
+
+
+class League(Model):
     """
     All teams in the league, with draft order, based on settings
     """
 
+    created: datetime.datetime = datetime.datetime.now()
+    copy_for_draft: bool = (
+        False  # If a league is a copy, it can go in drafts and is editable
+    )
+    name: str = ""
+    ready_for_draft: bool = False
     teams: List[Team]
     snake_draft: bool = SNAKE_DRAFT
     draft_order: List[int] = []
     draft_results: List[Team] = []
     current_draft_turn: int = 0
+    players: Players = Players()
+    position_tier_distributions: PositionTierDistributions = PositionTierDistributions()
+    ready_position_tier_distributions: bool = False
+    position_max_points: PositionMaxPoints = PositionMaxPoints()
+    ready_position_max_points: bool = False
+    logistic_regression_variables: LogisticRegressionVariables = (
+        LogisticRegressionVariables()
+    )
 
     @model_validator(mode="before")
-    def sort_by_draft_order(cls, data):
+    def sort_by_draft_order_and_validate_ready_to_draft(cls, data):
         """
         Sort the teams into their draft order and then create a list of their indices
-        to help populate the draft results
+        to help populate the draft results and validate whether a league is ready to draft
         """
+        if not all([isinstance(team, Team) for team in data["teams"]]):
+            data["teams"] = [Team(**team) for team in data["teams"]]
+        if "logistic_regression_variables" in data and not (
+            isinstance(
+                data["logistic_regression_variables"], LogisticRegressionVariables
+            )
+        ):
+            data["logistic_regression_variables"] = LogisticRegressionVariables(
+                **data["logistic_regression_variables"]
+            )
+        if "players" in data and not isinstance(data["players"], Players):
+            data["players"] = Players(**data["players"])
+
+        # Sort the teams
         data["teams"] = sorted(data["teams"], key=lambda x: x.draft_order)
 
         # For the number of rounds, create the draft order as a list
@@ -232,6 +290,26 @@ class League(BaseModel):
                     data["draft_order"].extend(team_indices[::-1])
             else:
                 data["draft_order"].extend(team_indices)
+
+        # For whichever current_draft_turn we are on, pop the first team from the draft order
+        for _ in range(data["current_draft_turn"]):
+            data["draft_order"].pop(0)
+
+        # Check if we are ready to draft
+        if (
+            "teams" in data
+            and len(data["teams"]) > 0
+            and "players" in data
+            and len(data["players"].players) > 0
+            and "logistic_regression_variables" in data
+            and len(data["logistic_regression_variables"].x) > 0
+            and len(data["logistic_regression_variables"].y) > 0
+            and "ready_position_tier_distributions" in data
+            and data["ready_position_tier_distributions"]
+            and "ready_position_max_points" in data
+            and data["ready_position_max_points"]
+        ):
+            data["ready_for_draft"] = True
 
         # Return the data to populate the model
         return data
@@ -261,7 +339,38 @@ class League(BaseModel):
 
         # Increment the current draft turn
         self.current_draft_turn += 1
-        self.draft_order.pop(
-            0
-        )  # Update the order to reflect that the turn has been taken
         return
+
+
+class DraftSimple(BaseModel):
+    """
+    Just the basic information about a draft, as a Pydantic model,
+    to return to the user in the API, not model in the database
+    """
+
+    created: datetime.datetime = datetime.datetime.now()
+    id: ObjectId
+
+
+class Draft(Model):
+    """
+    Drafts include a copy of the league, which has all necessary information,
+    and a created date
+    """
+
+    league: League = Reference()
+    created: datetime.datetime = datetime.datetime.now()
+
+
+class MonteCarloSimulationResult(BaseModel):
+    """
+    Pydantic model for the Monte Carlo simulation results
+    """
+
+    qb: float = 0
+    rb: float = 0
+    wr: float = 0
+    te: float = 0
+    dst: float = 0
+    k: float = 0
+    iterations: int = 0

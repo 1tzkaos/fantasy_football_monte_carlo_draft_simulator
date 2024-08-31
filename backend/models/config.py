@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-ENVIRONMENT CONFIGURATION VALUES FOR PYDANTIC MODELS AND SIMULATION
+ENVIRONMENT CONFIGURATION VALUES FOR ODMANTIC MODELS AND SIMULATION
 """
 import datetime
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
+
+# Indicate whether the app is running locally or in Docker
+LOCAL = os.getenv("LOCAL", "true").lower() == "true"
 
 # Roster and position sizes
 ROSTER_SIZE = int(os.getenv("ROSTER_SIZE", 14))
