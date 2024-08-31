@@ -102,6 +102,7 @@ export default function DraftIdPage({ params }: { params: { id: string } }) {
   // Draft a player with a POST request to '/draft/:id/pick'
   const handleDraftPlayer = async (name: string) => {
     await draftPlayer({ id: draft.id, name });
+    setSearchFilter("");
   };
 
   // When the team drafting is the simulator, set the Monte Carlo results
@@ -222,6 +223,7 @@ export default function DraftIdPage({ params }: { params: { id: string } }) {
             isClearable
             placeholder="Filter"
             size="lg"
+            value={searchFilter}
             variant="bordered"
             onChange={(e) => setSearchFilter(e.target.value)}
             onClear={() => setSearchFilter("")}
