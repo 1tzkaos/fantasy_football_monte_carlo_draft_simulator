@@ -1,6 +1,6 @@
 # Monte Carlo Fantasy Football Draft Simulator
 
-### Featuring FastAPI, NextUI, ODMantic, and Pydantic
+### Featuring [FastAPI](https://fastapi.tiangolo.com/), [NextUI](https://nextui.org/), and [ODMantic](https://art049.github.io/odmantic/)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3120/)
