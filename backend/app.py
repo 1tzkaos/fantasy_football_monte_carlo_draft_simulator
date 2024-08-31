@@ -10,9 +10,10 @@ import random
 from sklearn.base import RegressorMixin
 from sklearn.linear_model import LogisticRegression
 from starlette.middleware.cors import CORSMiddleware
+import time
 from typing import List
 
-from models.config import DRAFT_YEAR, SNAKE_DRAFT
+from models.config import DRAFT_YEAR, ROUND_SIZE, SNAKE_DRAFT
 from models.player import Player, Players, PlayerPoints
 from models.position import PositionMaxPoints, PositionTierDistributions
 from models.team import (
@@ -21,6 +22,7 @@ from models.team import (
     League,
     LogisticRegressionVariables,
     LeagueSimple,
+    MonteCarloSimulationResult,
     Team,
 )
 
@@ -162,20 +164,19 @@ def fit_logistic_regression_model(
 
 def simulate_pick(
     league: League,
+    draft_pick_model: RegressorMixin,
 ) -> str:
     """
     Simulate a pick using the logistic model to get probabilities for each position
     """
     players = league.players
-    draft_pick_model = fit_logistic_regression_model(
-        league.logistic_regression_variables
-    )
 
     # Calculate the weights
-    pick_number = league.current_draft_turn
-    team_index = league.draft_order[pick_number]
+    team_index = league.draft_order[0]
     team = league.teams[team_index]
-    weights = team.draft_turn_position_weights(pick_number + 1, draft_pick_model)
+    weights = team.draft_turn_position_weights(
+        league.current_draft_turn + 1, draft_pick_model
+    )
     weights = {k.lower(): v for k, v in weights.items()}
 
     # Randomly choose which position to pick, based on the weights
@@ -203,6 +204,104 @@ def simulate_pick(
     return player.name
 
 
+def draft_player(player_name: str, league: League):
+    """
+    Draft a player by name and update the league and players
+    """
+    players = league.players
+    player = [player for player in players.players if player.name == player_name]
+    if not player:
+        raise HTTPException(status_code=404, detail="Player not found")
+    else:
+        player = player[0]
+
+    # Set the player as drafted within the league
+    position = player.position.lower()
+    for k in ["players", position]:
+        if hasattr(players, k):
+            position_players = getattr(players, k)
+            # Find the player in the list by name
+            player_index = next(
+                (
+                    index
+                    for index, player in enumerate(position_players)
+                    if player.name == player_name
+                ),
+                None,
+            )
+            new_player = Player(**position_players[player_index].model_dump())
+            new_player.drafted = True
+            position_players[player_index] = new_player
+
+    # Draft the player
+    league.add_player_to_current_draft_turn_team(player)
+    return
+
+
+def simulate_draft(league: League, draft_pick_model: RegressorMixin):
+    """
+    Simulate an entire draft using the logistic model
+    """
+    draft_order = league.draft_order.copy()
+    for _ in enumerate(draft_order):
+        player_name = simulate_pick(league, draft_pick_model)
+        draft_player(player_name, league)
+    return
+
+
+def monte_carlo_draft(
+    league: League,
+    seconds: float = 30,  # Set to whatever time is best for the draft
+) -> MonteCarloSimulationResult:
+    """
+    Simulate drafts for each position and return the average points scored
+    to determine which position is best to draft
+    """
+    simulator_team = [i for i, team in enumerate(league.teams) if team.simulator]
+    results = {"qb": [], "rb": [], "wr": [], "te": []}
+    if league.current_draft_turn > ROUND_SIZE * 7:  # Add DST & K after round 7
+        results["dst"] = []
+        results["k"] = []
+
+    # Train the logistic regression model
+    draft_pick_model = fit_logistic_regression_model(
+        league.logistic_regression_variables
+    )
+
+    # Begin the simulation
+    start_time = time.time()
+    i = 0
+    while time.time() - start_time < seconds:
+        for position in results.keys():
+            possible_players = [
+                player
+                for player in league.players.__getattribute__(position)
+                if player.drafted == False
+            ]
+            if len(possible_players) == 0:
+                results[position].append(0)  # No players left
+                continue
+            best_player = possible_players[0]
+            league_copy = league.model_copy(deep=True)
+            draft_player(best_player.name, league_copy)
+            simulate_draft(league_copy, draft_pick_model)
+
+            # Append the points for the simulator team
+            results[position].append(
+                league_copy.teams[simulator_team[0]].randomized_starter_points(
+                    distributions=league.position_tier_distributions,
+                    max_points=league.position_max_points,
+                )
+            )
+            i += 1
+
+    # Turn the arrays into averages
+    for position in results.keys():
+        results[position] = round(sum(results[position]) / len(results[position]), 2)
+    results["iterations"] = i
+    return MonteCarloSimulationResult(**results)
+
+
 # Routes
 @app.post("/league", response_model=League, tags=["league"])
 async def create_league(
@@ -220,11 +319,18 @@ async def create_league(
                 name=row["Name"],
                 draft_order=row["Order"],
                 owner=row["Owner"],
-                simulator=row["Simulator"] == "True" or row["Simulator"] == 1,
+                simulator=row["Simulator"] == "True"
+                or row["Simulator"] == 1
+                or row["Simulator"] == "1",
             )
         )
     league = League(
-        teams=teams, snake_draft=SNAKE_DRAFT, name=name, created=datetime.now()
+        teams=teams,
+        snake_draft=SNAKE_DRAFT,
+        name=name,
+        created=datetime.now(),
+        copy_for_draft=False,
+        current_draft_turn=0,
     )
     await engine.save(league)
     return league
@@ -238,6 +344,7 @@ async def get_leagues(ready_for_draft: bool = True):
     leagues = await engine.find(League)
     if ready_for_draft:
         leagues = [league for league in leagues if league.ready_for_draft]
+    leagues = [league for league in leagues if not league.copy_for_draft]
     return leagues
 
 
@@ -260,6 +367,18 @@ async def delete_league(league_id: ObjectId):
     return Response(status_code=204)
 
 
+@app.get("/league/{league_id}/simulator", response_model=Team, tags=["league"])
+async def get_league_simulator(league_id: ObjectId):
+    """
+    Get the simulator team for a league
+    """
+    league = await get_a_league_by_id(league_id)
+    simulator = [team for team in league.teams if team.simulator]
+    if not simulator:
+        raise HTTPException(status_code=404, detail="Simulator team not found")
+    return simulator[0]
+
+
 @app.post("/league/{league_id}/draft", response_model=Draft, tags=["league"])
 async def create_draft_for_a_league(league_id: ObjectId):
     """
@@ -268,7 +387,15 @@ async def create_draft_for_a_league(league_id: ObjectId):
     league = await get_a_league_by_id(league_id)
     if not league.ready_for_draft:
         raise HTTPException(status_code=400, detail="League is not ready for a draft")
-    draft = Draft(league=league, created=datetime.now())
+
+    # Copy the league (without its ID) into a new object in the database
+    copied_data = league.model_dump()
+    copied_league = League(**{k: v for k, v in copied_data.items() if k != "id"})
+    copied_league.copy_for_draft = True
+    await engine.save(copied_league)
+
+    # Add the copied league to the draft
+    draft = Draft(league=copied_league, created=datetime.now())
     await engine.save(draft)
     return draft
 
@@ -515,7 +642,6 @@ async def make_draft_pick(
     Make a draft pick by name or using the simulator
     """
     draft = await get_a_draft_by_id(draft_id)
-    league = draft.league
     if name and use_simulator:
         raise HTTPException(
             status_code=400, detail="Cannot include a name and use the simulator"
@@ -527,7 +653,10 @@ async def make_draft_pick(
 
     # If using the simulator, get a pick name
     if use_simulator:
-        name = simulate_pick(draft.league)
+        draft_pick_model = fit_logistic_regression_model(
+            draft.league.logistic_regression_variables
+        )
+        name = simulate_pick(draft.league, draft_pick_model)
 
     # Find the player picked by name
     players = draft.league.players.players
@@ -537,28 +666,25 @@ async def make_draft_pick(
     else:
         player = player[0]
 
-    # Set the player as drafted within the league too
-    position = player.position.lower()
-    for k in ["players", position]:
-        if hasattr(league.players, k):
-            position_players = getattr(league.players, k)
-            # Find the player in the list by name
-            player_index = next(
-                (
-                    index
-                    for index, player in enumerate(position_players)
-                    if player.name == name
-                ),
-                None,
-            )
-            position_players[player_index].drafted = True
-
-    # Draft the player
-    player.drafted = True
-    league.add_player_to_current_draft_turn_team(player)
+    # Set the player as drafted within the league
+    draft_player(name, draft.league)
 
     # Save the draft
     await engine.save(draft)
 
     # Return the draft after all operations have been performed
     return draft
+
+
+# Run a Monte Carlo simulation to determine the best position to draft
+@app.post(
+    "/draft/{draft_id}/monte_carlo",
+    response_model=MonteCarloSimulationResult,
+    tags=["draft"],
+)
+async def run_monte_carlo_simulation(draft_id: ObjectId):
+    """
+    Run a Monte Carlo simulation to determine the best position to draft
+    """
+    draft = await get_a_draft_by_id(draft_id)
+    return monte_carlo_draft(draft.league)

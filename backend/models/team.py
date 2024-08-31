@@ -195,12 +195,19 @@ class Team(EmbeddedModel):
         using the draft year as the default year
         """
         roster_copy = copy.deepcopy(self.roster)
-        for player in roster_copy:
-            player.points[year].projected_points = player.randomized_points(
-                distributions=distributions, max_points=max_points, year=year
-            ).randomized_points
+        for i, player in enumerate(roster_copy):
+            player_data = player.model_dump()
+            player_data["points"][str(year)]["projected_points"] = (
+                player.randomized_points(
+                    distributions=distributions, max_points=max_points, year=year
+                ).randomized_points
+            )
+            new_player = Player(**player_data)
+            roster_copy[i] = new_player
         starters = fill_starters([x.model_dump() for x in roster_copy])["starters"]
-        return sum([player["points"][year]["projected_points"] for player in starters])
+        return sum(
+            [player["points"][str(year)]["projected_points"] for player in starters]
+        )
 
 
 class LogisticRegressionVariables(EmbeddedModel):
@@ -221,6 +228,7 @@ class LeagueSimple(BaseModel):
     created: datetime.datetime = datetime.datetime.now()
     name: str = ""
     ready_for_draft: bool
+    copy_for_draft: bool
     id: ObjectId
 
 
@@ -230,6 +238,9 @@ class League(Model):
     """
 
     created: datetime.datetime = datetime.datetime.now()
+    copy_for_draft: bool = (
+        False  # If a league is a copy, it can go in drafts and is editable
+    )
     name: str = ""
     ready_for_draft: bool = False
     teams: List[Team]
@@ -280,6 +291,10 @@ class League(Model):
             else:
                 data["draft_order"].extend(team_indices)
 
+        # For whichever current_draft_turn we are on, pop the first team from the draft order
+        for _ in range(data["current_draft_turn"]):
+            data["draft_order"].pop(0)
+
         # Check if we are ready to draft
         if (
             "teams" in data
@@ -324,9 +339,6 @@ class League(Model):
 
         # Increment the current draft turn
         self.current_draft_turn += 1
-        self.draft_order.pop(
-            0
-        )  # Update the order to reflect that the turn has been taken
         return
 
 
@@ -348,3 +360,17 @@ class Draft(Model):
 
     league: League = Reference()
     created: datetime.datetime = datetime.datetime.now()
+
+
+class MonteCarloSimulationResult(BaseModel):
+    """
+    Pydantic model for the Monte Carlo simulation results
+    """
+
+    qb: float = 0
+    rb: float = 0
+    wr: float = 0
+    te: float = 0
+    dst: float = 0
+    k: float = 0
+    iterations: int = 0

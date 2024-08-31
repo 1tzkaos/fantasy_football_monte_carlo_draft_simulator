@@ -11,9 +11,11 @@ const leagueUrl = "/league";
 export const leagueApi = createApi({
   reducerPath: "leagueApi",
   baseQuery: fetchBaseQuery(baseQuery),
+  tagTypes: ["League"],
   endpoints: (builder) => ({
     getLeagues: builder.query<LeagueSimple[], string>({
       query: () => leagueUrl,
+      providesTags: ["League"],
     }),
 
     // To create a draft for a league, we need to send a POST request to
@@ -44,6 +46,7 @@ export const leagueApi = createApi({
             body: bodyFormData,
           };
         },
+        invalidatesTags: ["League"],
       },
     ),
 
@@ -61,6 +64,7 @@ export const leagueApi = createApi({
           body: bodyFormData,
         };
       },
+      invalidatesTags: ["League"],
     }),
 
     // Historical players are added from a file POSTed to '/league/:id/historical_player'
@@ -83,6 +87,7 @@ export const leagueApi = createApi({
           body: bodyFormData,
         };
       },
+      invalidatesTags: ["League"],
     }),
 
     // Historical drafts are added from a file POSTed to '/league/:id/historical_draft'
@@ -105,6 +110,7 @@ export const leagueApi = createApi({
           body: bodyFormData,
         };
       },
+      invalidatesTags: ["League"],
     }),
   }),
 });

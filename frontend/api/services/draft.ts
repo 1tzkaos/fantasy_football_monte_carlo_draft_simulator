@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 import { baseQuery } from "@/api/services/base";
-import { Draft } from "@/types";
+import { Draft, MonteCarloResults } from "@/types";
 
 // Url for all draft operations
 const draftUrl = "/draft";
@@ -10,7 +10,7 @@ const draftUrl = "/draft";
 export const draftApi = createApi({
   reducerPath: "draftApi",
   baseQuery: fetchBaseQuery(baseQuery),
-  tagTypes: ["Draft"],
+  tagTypes: ["Draft", "MonteCarloResults"],
   endpoints: (builder) => ({
     getDraft: builder.query<Draft, string>({
       query: (id) => `${draftUrl}/${id}`,
@@ -28,7 +28,20 @@ export const draftApi = createApi({
       }),
       invalidatesTags: ["Draft"],
     }),
+
+    // Monte Carlo simulation for drafting players
+    runMonteCarlo: builder.mutation<MonteCarloResults, { id: string }>({
+      query: ({ id }) => ({
+        url: `${draftUrl}/${id}/monte_carlo`,
+        method: "POST",
+      }),
+      invalidatesTags: ["MonteCarloResults"],
+    }),
   }),
 });
 
-export const { useGetDraftQuery, useDraftPlayerMutation } = draftApi;
+export const {
+  useGetDraftQuery,
+  useDraftPlayerMutation,
+  useRunMonteCarloMutation,
+} = draftApi;

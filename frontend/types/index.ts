@@ -42,10 +42,21 @@ export type Team = {
 export type League = LeagueSimple & {
   teams: Team[];
   players: Players;
+  draft_order: number[];
   current_draft_turn: number;
 };
 
 // Expand the DraftSimple type to include the league
 export type Draft = DraftSimple & {
   league: League;
+};
+
+export type MonteCarloResults = {
+  qb: number;
+  rb: number;
+  wr: number;
+  te: number;
+  dst: number;
+  k: number;
+  iterations: number;
 };
