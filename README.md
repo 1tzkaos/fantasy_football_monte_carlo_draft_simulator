@@ -16,11 +16,11 @@ This project is my attempt to solve both of those problems. To better estimate w
 
 ## Running The Simulator
 
-To run the simulator without any edits to its code, you must have Docker installed on your machine.
+To get the simulator started, you must have [Docker](https://docs.docker.com/get-started/get-docker/) installed on your machine.
 
-Fork this repository, and run:
+Clone this repository, and run in its directory:
 
-```console
+```bash
 docker-compose up -d
 ```
 
@@ -64,7 +64,7 @@ The following columns are required:
 
 ### Teams
 
-This file provides the details for each team in your league. Other information, like whether the simulation should replicate a snake draft, should be contained within the `.env` file, which is read by `backend/models/config.py`.
+This file provides the details for each team in your league. Other information, like whether the simulation should replicate a snake draft, should be contained within the `.env` file for FastAPI, which is read by `backend/models/config.py`.
 
 The following columns are required:
 
