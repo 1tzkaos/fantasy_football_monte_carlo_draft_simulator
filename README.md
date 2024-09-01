@@ -10,9 +10,9 @@
 
 ## How Does The Simulator Work?
 
-In previous fantasy football drafts, I have struggled to pick the right players. At the start, I selected players whose point projections are not dramatically different than the projections of players who are still available in later rounds. At the end, I failed to draft backups for players who are at the most risk of injury.
+In previous fantasy football drafts, I have struggled to pick the right players. At the start, I selected players whose point projections were not dramatically different than the projections of players who were still available in later rounds. At the end, I failed to draft backups for players who were at the most risk of injury.
 
-This program is my attempt to solve both of those problems. To better estimate whether a player is especially valuable in a given round, a Monte Carlo simulation uses a logistic regression of historical draft data to guess which players will be available in later rounds of the draft, ensuring that I never pick a player who is easily replaceable. And to more accurately anticipate which players need strong, rostered backups (not streamers), this program randomly assigns injuries and other setbacks to players, based on historical data, so I always load up on talented individuals in my most at-risk positions.
+This project is my attempt to solve both of those problems. To better estimate whether a player is especially valuable in a given round, a Monte Carlo simulation uses a logistic regression of historical draft data to guess which players will be available in later rounds of the draft, ensuring that I never pick a player who is easily replaceable. And to more accurately anticipate which players need strong, rostered backups (not streamers), injuries and other setbacks are randomly assigned to players, based on historical data, so I always load up on talented individuals in my most at-risk positions.
 
 ## Running The Simulator
 
