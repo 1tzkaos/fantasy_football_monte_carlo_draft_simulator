@@ -12,7 +12,7 @@ load_dotenv()
 LOCAL = os.getenv("LOCAL", "true").lower() == "true"
 
 # Roster and position sizes
-ROSTER_SIZE = int(os.getenv("ROSTER_SIZE", 14))
+ROSTER_SIZE = int(os.getenv("ROSTER_SIZE", 12))
 QB_SIZE = int(os.getenv("QB_SIZE", 1))
 RB_SIZE = int(os.getenv("RB_SIZE", 2))
 WR_SIZE = int(os.getenv("WR_SIZE", 2))

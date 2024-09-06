@@ -16,7 +16,7 @@ from odmantic import EmbeddedModel, Model
 from typing import List
 
 
-class PositionSizes(Model):
+class PositionSizes(EmbeddedModel):
     """
     The number of players that can be starters for each position,
     which defaults to environment variables

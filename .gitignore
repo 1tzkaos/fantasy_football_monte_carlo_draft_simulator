@@ -68,4 +68,4 @@ node_modules/
 
 # Ignore downloaded files and personal settings that are not a part of the public project
 downloads/
-data/personal_league_teams.csv
+personal_league_teams.csv

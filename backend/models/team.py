@@ -238,11 +238,15 @@ class League(Model):
     """
 
     created: datetime.datetime = datetime.datetime.now()
+    name: str = ""
+    roster_size: int = 14
+    position_sizes: PositionSizes = PositionSizes()
+    round_size: int = 14
+    snake_draft: bool = True
+    ready_for_draft: bool = False
     copy_for_draft: bool = (
         False  # If a league is a copy, it can go in drafts and is editable
     )
-    name: str = ""
-    ready_for_draft: bool = False
     teams: List[Team]
     snake_draft: bool = SNAKE_DRAFT
     draft_order: List[int] = []

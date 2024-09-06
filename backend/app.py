@@ -16,7 +16,7 @@ from typing import List
 
 from models.config import DRAFT_YEAR, LOCAL, ROUND_SIZE, SNAKE_DRAFT
 from models.player import Player, Players, PlayerPoints
-from models.position import PositionMaxPoints, PositionTierDistributions
+from models.position import PositionMaxPoints, PositionSizes, PositionTierDistributions
 from models.team import (
     Draft,
     DraftSimple,
@@ -315,6 +315,16 @@ def monte_carlo_draft(
 async def create_league(
     file: UploadFile = File(...),
     name: str = "Fantasy Football League",
+    round_size: int = ROUND_SIZE,
+    roster_size: int = 14,
+    snake_draft: bool = SNAKE_DRAFT,
+    qb_size: int = 1,
+    rb_size: int = 2,
+    wr_size: int = 2,
+    te_size: int = 1,
+    flex_size: int = 1,
+    dst_size: int = 1,
+    k_size: int = 1,
 ):
     """
     Read data from a POSTed CSV file and create a league
@@ -336,6 +346,17 @@ async def create_league(
         teams=teams,
         snake_draft=SNAKE_DRAFT,
         name=name,
+        round_size=round_size,
+        roster_size=roster_size,
+        position_sizes=PositionSizes(
+            qb=qb_size,
+            rb=rb_size,
+            wr=wr_size,
+            te=te_size,
+            flex=flex_size,
+            dst=dst_size,
+            k=k_size,
+        ),
         created=datetime.now(),
         copy_for_draft=False,
         current_draft_turn=0,
@@ -696,3 +717,28 @@ async def run_monte_carlo_simulation(draft_id: ObjectId):
     """
     draft = await get_a_draft_by_id(draft_id)
     return monte_carlo_draft(draft.league)
+
+
+# Get the results of a draft by running each team's randomized points 1000x times
+@app.get(
+    "/draft/{draft_id}/results",
+    response_model=dict,  # This is just a dictionary with team names as keys and points as values
+    tags=["draft"],
+)
+async def get_draft_results(draft_id: ObjectId):
+    """
+    Get the results of a draft by running each team's randomized points 1000x times
+    """
+    draft = await get_a_draft_by_id(draft_id)
+    results = {}
+    for team in draft.league.teams:
+        points = []
+        for _ in range(1000):
+            points.append(
+                team.randomized_starter_points(
+                    distributions=draft.league.position_tier_distributions,
+                    max_points=draft.league.position_max_points,
+                )
+            )
+        results[team.name] = round(sum(points) / len(points), 2)
+    return results
