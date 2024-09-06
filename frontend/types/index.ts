@@ -60,3 +60,6 @@ export type MonteCarloResults = {
   k: number;
   iterations: number;
 };
+
+// Draft results are just an object of each team name with a number (score) as value
+export type DraftResults = Record<string, number>;

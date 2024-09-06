@@ -9,6 +9,7 @@ import { useTheme } from "next-themes";
 
 import {
   useGetDraftQuery,
+  useGetDraftResultsQuery,
   useDraftPlayerMutation,
   useRunMonteCarloMutation,
 } from "@/api/services/draft";
@@ -108,7 +109,7 @@ export default function DraftIdPage({ params }: { params: { id: string } }) {
   // When the team drafting is the simulator, set the Monte Carlo results
   useEffect(() => {
     if (
-      draft.league.teams.length > 0 &&
+      draft.league.draft_order.length > 0 &&
       draft.league.teams[draft.league.draft_order[0]].simulator
     ) {
       if (monteCarloResults.iterations === 0) {
@@ -173,7 +174,7 @@ export default function DraftIdPage({ params }: { params: { id: string } }) {
         </div>
 
         {/* Drafting team and Monte Carlo results */}
-        {draft.league.teams.length > 0 ? (
+        {draft.league.draft_order.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
             <div className="flex flex-col justify-center gap-2 border-medium rounded-large p-3 border-default">
               <h3 className="w-full text-xl">{`On the Clock - Pick ${draft.league.current_draft_turn + 1}`}</h3>
@@ -272,8 +273,10 @@ export default function DraftIdPage({ params }: { params: { id: string } }) {
                               } `
                             }
                             disabled={
+                              draft.league.draft_order.length > 0 &&
                               draft.league.teams[draft.league.draft_order[0]]
-                                .simulator && monteCarloResults.iterations === 0
+                                .simulator &&
+                              monteCarloResults.iterations === 0
                             }
                             onClick={() => handleDraftPlayer(player.name)}
                           >

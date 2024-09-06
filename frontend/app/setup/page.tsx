@@ -57,7 +57,7 @@ export default function SetupPage() {
   const [addHistoricalPlayers] = useAddHistoricalPlayersMutation();
   const [addPlayers] = useAddPlayersMutation();
 
-  // State to store the inputted name and files
+  // State to store the name, sizes, and files
   const [leagueName, setLeagueName] = useState<string | null>(null);
   const [teamsFile, setTeamsFile] = useState<File | null>(null);
   const [historicalDraftFile, setHistoricalDraftFile] = useState<File | null>(

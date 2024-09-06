@@ -5,6 +5,7 @@ import { button as buttonStyles } from "@nextui-org/theme";
 import { Button } from "@nextui-org/button";
 import { Code } from "@nextui-org/code";
 import { Link } from "@nextui-org/link";
+import { Spinner } from "@nextui-org/spinner";
 import clsx from "clsx";
 
 import {
@@ -19,15 +20,17 @@ import { LeagueSimple } from "@/types";
 interface DraftContextType {
   leagues: LeagueSimple[];
   handleCreateDraft: (id: string) => void;
+  isLoading: boolean;
 }
 
 const DraftContext = createContext<DraftContextType>({
   leagues: [],
   handleCreateDraft: () => {},
+  isLoading: true,
 });
 
 export default function DraftPage() {
-  const { data: leagues = [] } = useGetLeaguesQuery("");
+  const { data: leagues = [], isLoading } = useGetLeaguesQuery("");
   const [createDraft] = useCreateDraftMutation();
 
   // Create a draft for the selected league and navigate to that page when successful
@@ -53,7 +56,9 @@ export default function DraftPage() {
 
       {/* Iterate through the available settings and display them as a clickable btn */}
       <div className="flex flex-col gap-4 w-full items-center">
-        <DraftContext.Provider value={{ leagues, handleCreateDraft }}>
+        <DraftContext.Provider
+          value={{ leagues, handleCreateDraft, isLoading }}
+        >
           {leagues.map((league) => (
             <Button
               key={league.id}
@@ -79,8 +84,16 @@ export default function DraftPage() {
           ))}
 
           {/* If there are no drafts, give an error that there are none available */}
-          {leagues.length === 0 && (
+          {leagues.length === 0 && !isLoading ? (
             <Code color="danger">No draft settings found.</Code>
+          ) : null}
+
+          {/* If the draft is loading, show the spinner */}
+          {isLoading && (
+            <div className="flex items-center">
+              <Spinner size="sm" />
+              <span className="ml-2">Loading</span>
+            </div>
           )}
         </DraftContext.Provider>
       </div>
