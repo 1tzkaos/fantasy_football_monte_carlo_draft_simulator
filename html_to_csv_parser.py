@@ -84,6 +84,9 @@ class FantasyFootballParser:
                 
             fantasy_points = points_span.get_text(strip=True)
             
+            # Handle missing data - convert "--" to "0"
+            fantasy_points = self._handle_missing_data(fantasy_points)
+            
             # Convert team abbreviations to match existing data format
             team = self._normalize_team_name(team)
             
